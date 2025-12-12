@@ -50,26 +50,18 @@ export class AuthService {
       this.supabaseService.auth.onAuthStateChange(async (event, session) => {
         console.log('[Auth] State changed:', event, 'Session exists:', !!session, 'User:', session?.user?.email);
         
-        if (event === 'SIGNED_IN' && session?.user) {
-          console.log('[Auth] User signed in:', session.user.email);
-          await this.loadUserProfile(session.user.id);
-          
-          // Load all users if admin
-          const profile = await this.supabaseService.getProfile(session.user.id);
-          if (profile.role === 'Administrator') {
-            await this.loadAllUsers();
-          }
-        } else if (event === 'SIGNED_OUT') {
+        if (event === 'SIGNED_OUT') {
           console.log('[Auth] User signed out');
           this._currentUser.set(null);
           this._users.set([]);
         } else if (event === 'TOKEN_REFRESHED' && session?.user) {
           console.log('[Auth] Token refreshed for user:', session.user.email);
-          await this.loadUserProfile(session.user.id);
+          // No need to reload profile on token refresh - user data doesn't change
         } else if (event === 'USER_UPDATED' && session?.user) {
           console.log('[Auth] User updated:', session.user.email);
           await this.loadUserProfile(session.user.id);
         }
+        // Note: SIGNED_IN is handled by login() method, not here
       });
     } catch (error) {
       console.error('Error initializing auth:', error);
@@ -135,6 +127,13 @@ export class AuthService {
       if (data.user) {
         console.log('[Auth] Login successful for:', data.user.email);
         await this.loadUserProfile(data.user.id);
+        
+        // Load all users if admin
+        if (this._currentUser()?.role === 'Administrator') {
+          console.log('[Auth] Loading all users for administrator');
+          await this.loadAllUsers();
+        }
+        
         return { success: true };
       }
 
