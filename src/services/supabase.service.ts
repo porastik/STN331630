@@ -184,6 +184,51 @@ export class SupabaseService {
     return data.user;
   }
 
+  // Ensure valid session - refresh token if expired
+  async ensureValidSession(): Promise<boolean> {
+    try {
+      const { data: { session }, error } = await this.supabase.auth.getSession();
+      
+      if (error) {
+        console.error('Error getting session:', error);
+        return false;
+      }
+      
+      if (!session) {
+        console.warn('No active session');
+        return false;
+      }
+      
+      // Check if token is about to expire (within 5 minutes)
+      const expiresAt = session.expires_at;
+      if (expiresAt) {
+        const expirationTime = expiresAt * 1000; // Convert to milliseconds
+        const now = Date.now();
+        const fiveMinutes = 5 * 60 * 1000;
+        
+        if (expirationTime - now < fiveMinutes) {
+          console.log('Token expiring soon, refreshing...');
+          const { data, error: refreshError } = await this.supabase.auth.refreshSession();
+          
+          if (refreshError) {
+            console.error('Error refreshing session:', refreshError);
+            return false;
+          }
+          
+          if (data.session) {
+            console.log('Session refreshed successfully');
+            return true;
+          }
+        }
+      }
+      
+      return true;
+    } catch (error) {
+      console.error('Error ensuring valid session:', error);
+      return false;
+    }
+  }
+
   // Profile helpers
   async getProfile(userId: string) {
     const { data, error } = await this.supabase

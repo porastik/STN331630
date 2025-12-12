@@ -172,6 +172,14 @@ export class AssetService {
     }
 
     try {
+      // Ensure valid session before database operation
+      const sessionValid = await this.supabaseService.ensureValidSession();
+      if (!sessionValid) {
+        this._error.set('Vaša relácia vypršala. Prosím, prihláste sa znova.');
+        this._loading.set(false);
+        return;
+      }
+
       const data = await this.supabaseService.createAsset({
         name: asset.name,
         type: asset.type,
@@ -224,6 +232,14 @@ export class AssetService {
     }
 
     try {
+      // Ensure valid session before database operation
+      const sessionValid = await this.supabaseService.ensureValidSession();
+      if (!sessionValid) {
+        this._error.set('Vaša relácia vypršala. Prosím, prihláste sa znova.');
+        this._loading.set(false);
+        return;
+      }
+
       await this.supabaseService.updateAsset(updatedAsset.id, {
         name: updatedAsset.name,
         type: updatedAsset.type,
@@ -241,9 +257,15 @@ export class AssetService {
       });
 
       await this.loadAssetsFromSupabase();
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error updating asset:', error);
-      this._error.set('Nepodarilo sa aktualizovať náradia.');
+      
+      // Check if it's an auth error
+      if (error.message?.includes('JWT') || error.message?.includes('expired') || error.code === 'PGRST301') {
+        this._error.set('Vaša relácia vypršala. Prosím, prihláste sa znova.');
+      } else {
+        this._error.set('Nepodarilo sa aktualizovať náradia.');
+      }
     } finally {
       this._loading.set(false);
     }
@@ -263,12 +285,26 @@ export class AssetService {
     }
 
     try {
+      // Ensure valid session before database operation
+      const sessionValid = await this.supabaseService.ensureValidSession();
+      if (!sessionValid) {
+        this._error.set('Vaša relácia vypršala. Prosím, prihláste sa znova.');
+        this._loading.set(false);
+        return;
+      }
+
       await this.supabaseService.deleteAsset(id);
 
       await this.loadAssetsFromSupabase();
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error deleting asset:', error);
-      this._error.set('Nepodarilo sa vymazať náradia.');
+      
+      // Check if it's an auth error
+      if (error.message?.includes('JWT') || error.message?.includes('expired') || error.code === 'PGRST301') {
+        this._error.set('Vaša relácia vypršala. Prosím, prihláste sa znova.');
+      } else {
+        this._error.set('Nepodarilo sa vymazať náradia.');
+      }
     } finally {
       this._loading.set(false);
     }
@@ -316,6 +352,14 @@ export class AssetService {
     }
 
     try {
+      // Ensure valid session before database operation
+      const sessionValid = await this.supabaseService.ensureValidSession();
+      if (!sessionValid) {
+        this._error.set('Vaša relácia vypršala. Prosím, prihláste sa znova.');
+        this._loading.set(false);
+        return;
+      }
+
       await this.supabaseService.createInspection({
         asset_id: assetId,
         date: inspection.date,
