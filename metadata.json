@@ -1,0 +1,7 @@
+{
+  "name": "Evidencia náradia a spotrebičov",
+  "description": "Aplikácia na evidenciu a správu ručného náradia a elektrických spotrebičov v súlade s normou STN 33 1630. Umožňuje sledovanie revízií, kontrol a stavu zariadení.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}

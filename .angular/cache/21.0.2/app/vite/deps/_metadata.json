@@ -1,0 +1,49 @@
+{
+  "hash": "c40ca4c3",
+  "configHash": "d88901ef",
+  "lockfileHash": "72368dde",
+  "browserHash": "b74e8aab",
+  "optimized": {
+    "@angular/common": {
+      "src": "../../../../../../node_modules/@angular/common/fesm2022/common.mjs",
+      "file": "@angular_common.js",
+      "fileHash": "93b52619",
+      "needsInterop": false
+    },
+    "@angular/core": {
+      "src": "../../../../../../node_modules/@angular/core/fesm2022/core.mjs",
+      "file": "@angular_core.js",
+      "fileHash": "b17a58e7",
+      "needsInterop": false
+    },
+    "@angular/forms": {
+      "src": "../../../../../../node_modules/@angular/forms/fesm2022/forms.mjs",
+      "file": "@angular_forms.js",
+      "fileHash": "d4ba4731",
+      "needsInterop": false
+    },
+    "@angular/platform-browser": {
+      "src": "../../../../../../node_modules/@angular/platform-browser/fesm2022/platform-browser.mjs",
+      "file": "@angular_platform-browser.js",
+      "fileHash": "32fcc3a8",
+      "needsInterop": false
+    },
+    "@supabase/supabase-js": {
+      "src": "../../../../../../node_modules/@supabase/supabase-js/dist/esm/wrapper.mjs",
+      "file": "@supabase_supabase-js.js",
+      "fileHash": "d9bddfc7",
+      "needsInterop": false
+    }
+  },
+  "chunks": {
+    "chunk-KEZPRGQ6": {
+      "file": "chunk-KEZPRGQ6.js"
+    },
+    "chunk-CHINHSNI": {
+      "file": "chunk-CHINHSNI.js"
+    },
+    "chunk-3U7RAGIC": {
+      "file": "chunk-3U7RAGIC.js"
+    }
+  }
+}

@@ -1,0 +1,1117 @@
+<!-- Main container -->
+@if (authService.currentUser(); as user) {
+  <!-- Main application view when logged in -->
+  <div class="min-h-screen bg-slate-100 flex flex-col">
+    <!-- Notification Panel -->
+    @if (notification(); as notif) {
+      <div class="fixed top-5 right-5 z-50 max-w-sm w-full bg-white shadow-lg rounded-lg pointer-events-auto ring-1 ring-black ring-opacity-5 overflow-hidden"
+          [class.bg-green-50]="notif.type === 'success'"
+          [class.border-green-400]="notif.type === 'success'"
+          [class.bg-red-50]="notif.type === 'error'"
+          [class.border-red-400]="notif.type === 'error'">
+        <div class="p-4">
+          <div class="flex items-start">
+            <div class="flex-shrink-0">
+              @if (notif.type === 'success') {
+                <svg class="h-6 w-6 text-green-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15L15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              }
+              @if (notif.type === 'error') {
+                <svg class="h-6 w-6 text-red-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              }
+            </div>
+            <div class="ml-3 w-0 flex-1 pt-0.5">
+              <p class="text-sm font-medium" 
+                  [class.text-green-800]="notif.type === 'success'"
+                  [class.text-red-800]="notif.type === 'error'">
+                {{ notif.message }}
+              </p>
+            </div>
+            <div class="ml-4 flex-shrink-0 flex">
+              <button (click)="notification.set(null)" class="inline-flex rounded-md bg-transparent text-slate-400 hover:text-slate-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                <span class="sr-only">Zavrieť</span>
+                <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                  <path d="M6.28 5.22a.75.75 0 00-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 101.06 1.06L10 11.06l3.72 3.72a.75.75 0 101.06-1.06L11.06 10l3.72-3.72a.75.75 0 00-1.06-1.06L10 8.94 6.28 5.22z" />
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    }
+
+    <header class="bg-white shadow-md">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+        <div class="flex items-center justify-between">
+          <div>
+            <h1 class="text-2xl font-bold text-slate-800">Evidencia náradia a spotrebičov</h1>
+            <span class="text-sm font-medium text-slate-500">podľa STN 33 1630</span>
+          </div>
+           <div class="flex items-center gap-4">
+            @if(assetService.lastAddedRevisionNumber(); as lastRevNum) {
+              <div class="text-right border-r border-slate-300 pr-4">
+                <p class="font-semibold">{{ lastRevNum }}</p>
+                <p class="text-sm text-slate-500">Posledné rev. číslo</p>
+              </div>
+            }
+             @if(authService.isAdmin()) {
+                <button (click)="showSettingsModal()" class="flex items-center gap-2 px-3 py-2 bg-slate-600 text-white rounded-md shadow-sm hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-500 transition-colors text-sm" title="Nastavenia prevádzkovateľa">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5"><path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 0 1-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 0 1 .947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 0 1 2.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 0 1 2.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 0 1-.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 0 1-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 0 1-2.287-.947ZM10 13a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z" clip-rule="evenodd" /></svg>
+                    Nastavenia
+                </button>
+                <button (click)="showUserManagement()" class="flex items-center gap-2 px-3 py-2 bg-slate-600 text-white rounded-md shadow-sm hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-500 transition-colors text-sm" title="Správa používateľských účtov">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5"><path d="M10 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6ZM3.465 14.493a1.23 1.23 0 0 0 .41 1.412A9.957 9.957 0 0 0 10 18c2.31 0 4.438-.784 6.131-2.1.43-.333.604-.903.41-1.412a6.998 6.998 0 0 0-13.074 0Z" /></svg>
+                    Účty
+                </button>
+            }
+            <div class="text-right">
+              <p class="font-semibold">{{ user.username }}</p>
+              <p class="text-sm text-slate-500">{{ user.role }}</p>
+            </div>
+            <button (click)="logout()" class="flex items-center gap-2 px-3 py-2 bg-slate-100 text-slate-700 border border-slate-300 rounded-md shadow-sm hover:bg-slate-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors" title="Odhlásiť sa">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5"><path fill-rule="evenodd" d="M3 4.25A2.25 2.25 0 0 1 5.25 2h5.5A2.25 2.25 0 0 1 13 4.25v2a.75.75 0 0 1-1.5 0v-2a.75.75 0 0 0-.75-.75h-5.5a.75.75 0 0 0-.75.75v11.5c0 .414.336.75.75.75h5.5a.75.75 0 0 0 .75-.75v-2a.75.75 0 0 1 1.5 0v2A2.25 2.25 0 0 1 10.75 18h-5.5A2.25 2.25 0 0 1 3 15.75V4.25Z" clip-rule="evenodd" /><path fill-rule="evenodd" d="M19 10a.75.75 0 0 0-.75-.75H8.75a.75.75 0 0 0 0 1.5h9.5a.75.75 0 0 0 .75-.75Z" clip-rule="evenodd" /><path fill-rule="evenodd" d="M15.53 6.47a.75.75 0 0 0-1.06 0l-3 3a.75.75 0 0 0 0 1.06l3 3a.75.75 0 1 0 1.06-1.06L13.06 10l2.47-2.47a.75.75 0 0 0 0-1.06Z" clip-rule="evenodd" /></svg>
+              Odhlásiť
+            </button>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-grow w-full">
+      @switch (viewMode()) {
+        @case ('list') {
+          @if (assetSummary(); as summary) {
+          <div class="mb-6 bg-white p-4 rounded-lg shadow-md">
+            <h3 class="text-lg font-semibold text-slate-800 mb-3">Celkový prehľad stavu</h3>
+              <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-4 text-center">
+                <div (click)="applySummaryFilter('total')"
+                    class="p-3 rounded-lg bg-slate-100 cursor-pointer transition-all duration-200 hover:shadow-lg hover:-translate-y-1"
+                    [class.ring-2]="summaryFilterActive() === 'total'"
+                    [class.ring-slate-500]="summaryFilterActive() === 'total'">
+                  <p class="text-2xl font-bold text-slate-700">{{ summary.total }}</p>
+                  <p class="text-xs text-slate-500 font-semibold uppercase">Celkom</p>
+                </div>
+                 <div (click)="applySummaryFilter('planned')"
+                    class="p-3 rounded-lg bg-blue-100 cursor-pointer transition-all duration-200 hover:shadow-lg hover:-translate-y-1"
+                    [class.ring-2]="summaryFilterActive() === 'planned'"
+                    [class.ring-blue-500]="summaryFilterActive() === 'planned'">
+                  <p class="text-2xl font-bold text-blue-700">{{ summary.planned }}</p>
+                  <p class="text-xs text-blue-600 font-semibold uppercase">Plánovaná</p>
+                </div>
+                <div (click)="applySummaryFilter('inOperation')"
+                    class="p-3 rounded-lg bg-green-100 cursor-pointer transition-all duration-200 hover:shadow-lg hover:-translate-y-1"
+                    [class.ring-2]="summaryFilterActive() === 'inOperation'"
+                    [class.ring-green-500]="summaryFilterActive() === 'inOperation'">
+                  <p class="text-2xl font-bold text-green-700">{{ summary.inOperation }}</p>
+                  <p class="text-xs text-green-600 font-semibold uppercase">V prevádzke</p>
+                </div>
+                <div (click)="applySummaryFilter('inRepair')"
+                    class="p-3 rounded-lg bg-amber-100 cursor-pointer transition-all duration-200 hover:shadow-lg hover:-translate-y-1"
+                    [class.ring-2]="summaryFilterActive() === 'inRepair'"
+                    [class.ring-amber-500]="summaryFilterActive() === 'inRepair'">
+                  <p class="text-2xl font-bold text-amber-700">{{ summary.inRepair }}</p>
+                  <p class="text-xs text-amber-600 font-semibold uppercase">V oprave</p>
+                </div>
+                <div (click)="applySummaryFilter('decommissioned')"
+                    class="p-3 rounded-lg bg-red-100 cursor-pointer transition-all duration-200 hover:shadow-lg hover:-translate-y-1"
+                    [class.ring-2]="summaryFilterActive() === 'decommissioned'"
+                    [class.ring-red-500]="summaryFilterActive() === 'decommissioned'">
+                  <p class="text-2xl font-bold text-red-700">{{ summary.decommissioned }}</p>
+                  <p class="text-xs text-red-600 font-semibold uppercase">Vyradené</p>
+                </div>
+                <div (click)="applySummaryFilter('dueIn30Days')"
+                    class="p-3 rounded-lg bg-orange-100 cursor-pointer transition-all duration-200 hover:shadow-lg hover:-translate-y-1"
+                    [class.ring-2]="summaryFilterActive() === 'dueIn30Days'"
+                    [class.ring-orange-500]="summaryFilterActive() === 'dueIn30Days'">
+                  <p class="text-2xl font-bold text-orange-700">{{ summary.dueIn30Days }}</p>
+                  <p class="text-xs text-orange-600 font-semibold uppercase">Revízia do 30 dní</p>
+                </div>
+                <div (click)="applySummaryFilter('inspectionsLastWeek')"
+                    class="p-3 rounded-lg bg-cyan-100 cursor-pointer transition-all duration-200 hover:shadow-lg hover:-translate-y-1"
+                    [class.ring-2]="summaryFilterActive() === 'inspectionsLastWeek'"
+                    [class.ring-cyan-500]="summaryFilterActive() === 'inspectionsLastWeek'">
+                  <p class="text-2xl font-bold text-cyan-700">{{ summary.inspectionsLastWeek }}</p>
+                  <p class="text-xs text-cyan-600 font-semibold uppercase">Záznamy (7 dní)</p>
+                </div>
+                <div (click)="applySummaryFilter('newAssetsLastWeek')"
+                    class="p-3 rounded-lg bg-indigo-100 cursor-pointer transition-all duration-200 hover:shadow-lg hover:-translate-y-1"
+                    [class.ring-2]="summaryFilterActive() === 'newAssetsLastWeek'"
+                    [class.ring-indigo-500]="summaryFilterActive() === 'newAssetsLastWeek'">
+                  <p class="text-2xl font-bold text-indigo-700">{{ summary.newAssetsLastWeek }}</p>
+                  <p class="text-xs text-indigo-600 font-semibold uppercase">Nové kusy (7 dní)</p>
+                </div>
+              </div>
+          </div>
+          }
+          <div class="mb-6 space-y-4">
+            <div class="flex flex-wrap gap-4 items-end justify-between">
+              <div class="flex flex-wrap gap-4 items-end">
+                <div>
+                  <label for="search" class="block text-sm font-medium text-slate-700">Vyhľadať</label>
+                  <div class="relative mt-1">
+                    <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5 text-slate-400"><path fill-rule="evenodd" d="M9 3.5a5.5 5.5 0 1 0 0 11 5.5 5.5 0 0 0 0-11ZM2 9a7 7 0 1 1 12.452 4.391l3.328 3.329a.75.75 0 1 1-1.06 1.06l-3.329-3.328A7 7 0 0 1 2 9Z" clip-rule="evenodd" /></svg>
+                    </div>
+                    <input type="search" id="search" name="search" 
+                      [ngModel]="searchQuery()" (ngModelChange)="searchQuery.set($event)"
+                      placeholder="Rev. číslo, názov, sériové číslo..."
+                      class="block w-full rounded-md border-slate-300 pl-10 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                  </div>
+                </div>
+                <div>
+                  <label for="filterStatus" class="block text-sm font-medium text-slate-700">Stav</label>
+                  <select id="filterStatus" name="filterStatus" [ngModel]="filterByStatus()" (ngModelChange)="filterByStatus.set($event)" class="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                    <option value="all">Všetky</option>
+                    <option value="Plánovaná">Plánovaná</option>
+                    <option value="V prevádzke">V prevádzke</option>
+                    <option value="V oprave">V oprave</option>
+                    <option value="Vyradené">Vyradené</option>
+                  </select>
+                </div>
+                <div>
+                  <label for="sortBy" class="block text-sm font-medium text-slate-700">Zoradiť podľa</label>
+                  <select id="sortBy" name="sortBy" [ngModel]="sortBy()" (ngModelChange)="sortBy.set($event)" class="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                    <option value="name">Názvu</option>
+                    <option value="nextInspectionDate">Dátumu kontroly</option>
+                  </select>
+                </div>
+                <button (click)="showAdvancedFilters.set(!showAdvancedFilters())" class="px-3 py-2 border border-slate-300 rounded-md text-sm font-medium text-slate-700 hover:bg-slate-50 flex items-center gap-2">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5"><path d="M2.5 3A1.5 1.5 0 0 0 1 4.5v.793c.026.009.051.02.076.032L7.674 8.51c.206.192.473.308.752.35V17.5a.5.5 0 0 0 .854.354l2.5-2.5a.5.5 0 0 0 .146-.354V8.86c.279-.042.546-.158.752-.35l6.598-3.185A.755.755 0 0 1 19 5.293V4.5A1.5 1.5 0 0 0 17.5 3h-15Z" /></svg>
+                  Viac filtrov
+                </button>
+              </div>
+              <div class="flex items-center gap-2">
+                <button (click)="startScanner()" class="flex items-center gap-2 px-4 py-2 bg-slate-700 text-white rounded-md shadow-sm hover:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-500 transition-colors" title="Naskenovať čiarový kód spotrebiča">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5"><path fill-rule="evenodd" d="M14 5a1 1 0 0 1 1 1v1.5a.5.5 0 0 0 1 0V6a2 2 0 0 0-2-2h-1.5a.5.5 0 0 0 0 1H14ZM5 5a1 1 0 0 1 1-1h1.5a.5.5 0 0 0 0-1H6a2 2 0 0 0-2 2v1.5a.5.5 0 0 0 1 0V6a1 1 0 0 1 1-1ZM15 14v-1.5a.5.5 0 0 0-1 0V14a1 1 0 0 1-1 1h-1.5a.5.5 0 0 0 0 1H14a2 2 0 0 0 2-2v-1.5a.5.5 0 0 0-1 0V14ZM5 14a1 1 0 0 1-1-1v-1.5a.5.5 0 0 0-1 0V14a2 2 0 0 0 2 2h1.5a.5.5 0 0 0 0-1H5Z" clip-rule="evenodd" /><path d="M7 7.5A2.5 2.5 0 0 1 9.5 5h1A2.5 2.5 0 0 1 13 7.5v1A2.5 2.5 0 0 1 10.5 11h-1A2.5 2.5 0 0 1 7 8.5v-1Zm2.5-1a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1h1a1 1 0 0 0 1-1v-1a1 1 0 0 0-1-1h-1Z" /></svg>
+                </button>
+                @if (authService.isAdmin()) {
+                <div class="flex items-center gap-2 border-l pl-2 ml-2 border-slate-300">
+                    <button (click)="saveForOffline()" class="p-2 text-slate-600 hover:bg-slate-100 rounded-md" title="Uložiť pre offline prístup">
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5"><path fill-rule="evenodd" d="M10 2a.75.75 0 0 1 .75.75v6.586l1.96-1.97a.75.75 0 1 1 1.06 1.06l-3.243 3.25a.75.75 0 0 1-1.054 0L6.23 8.384a.75.75 0 1 1 1.06-1.06l1.96 1.97V2.75A.75.75 0 0 1 10 2Z" clip-rule="evenodd" /><path d="M3.75 13a.75.75 0 0 0-1.5 0v1.5c0 1.243 1.007 2.25 2.25 2.25h10.5A2.25 2.25 0 0 0 17.5 16.5v-1.5a.75.75 0 0 0-1.5 0v1.5a.75.75 0 0 1-.75.75H4.5a.75.75 0 0 1-.75-.75v-1.5Z" /></svg>
+                    </button>
+                    <button (click)="triggerImport()" class="p-2 text-slate-600 hover:bg-slate-100 rounded-md" title="Importovať databázu zo súboru JSON">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5"><path d="M9.994 4.5a.75.75 0 0 1 .75.75v3.41l1.47-1.47a.75.75 0 1 1 1.06 1.06l-2.75 2.75a.75.75 0 0 1-1.06 0L6.714 8.28a.75.75 0 1 1 1.06-1.06l1.47 1.47v-3.41a.75.75 0 0 1 .75-.75Z" /><path d="M5.25 12a.75.75 0 0 0-1.5 0v2.25c0 .966.784 1.75 1.75 1.75h8.5a1.75 1.75 0 0 0 1.75-1.75V12a.75.75 0 0 0-1.5 0v2.25a.25.25 0 0 1-.25.25h-8.5a.25.25 0 0 1-.25-.25V12Z" /></svg>
+                    </button>
+                    <input type="file" id="import-json-input" (change)="importFromJson($event)" accept=".json" class="hidden">
+                    <button (click)="exportToJson()" class="p-2 text-slate-600 hover:bg-slate-100 rounded-md" title="Exportovať databázu do súboru JSON">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5"><path fill-rule="evenodd" d="M12.51 4.49a.75.75 0 0 0-1.02 1.02L15.44 9.25H4.56l3.95-3.74a.75.75 0 0 0-1.02-1.02L2.24 9.25a2.25 2.25 0 0 0 0 3.18l5.25 5.01a.75.75 0 1 0 1.02-1.02L4.56 12.25h10.88l-3.95 3.74a.75.75 0 1 0 1.02 1.02l5.25-5.01a2.25 2.25 0 0 0 0-3.18l-5.25-5.01Z" clip-rule="evenodd" /></svg>
+                    </button>
+                     <button (click)="generateAllPdf()" class="p-2 text-slate-600 hover:bg-slate-100 rounded-md" title="Exportovať všetky karty do PDF">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5"><path fill-rule="evenodd" d="M5 2.75C5 1.784 5.784 1 6.75 1h6.5c.966 0 1.75.784 1.75 1.75v3.552c.377.135.74.34 1.074.599V2.75A2.75 2.75 0 0 0 13.25 0h-6.5A2.75 2.75 0 0 0 4 2.75v14.5A2.75 2.75 0 0 0 6.75 20h6.5A2.75 2.75 0 0 0 16 17.25v-3.35a3.513 3.513 0 0 1-1 .099V17.25c0 .966-.784 1.75-1.75 1.75h-6.5A1.75 1.75 0 0 1 5 17.25V2.75Z" clip-rule="evenodd" /><path d="M13.5 11.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5Z" /><path d="M12.99 9.993a.75.75 0 0 1 .75-.75h2.01a.75.75 0 0 1 0 1.5h-2.01a.75.75 0 0 1-.75-.75Z" /><path d="M12.99 12.007a.75.75 0 0 1 .75-.75h2.01a.75.75 0 0 1 0 1.5h-2.01a.75.75 0 0 1-.75-.75Z" /><path d="m14.25 6.75.001 1.006a.75.75 0 0 1-1.5 0L12.75 6.75a.75.75 0 0 1 1.5 0Z" /><path d="M12.75 13.257V12.25a.75.75 0 0 1 1.5 0v1.007a.75.75 0 0 1-1.5 0Z" /></svg>
+                    </button>
+                    <button (click)="exportToCsv()" class="p-2 text-slate-600 hover:bg-slate-100 rounded-md" title="Exportovať zoznam do súboru CSV">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5"><path fill-rule="evenodd" d="M10 18a8 8 0 1 0 0-16 8 8 0 0 0 0 16Zm.75-11.25a.75.75 0 0 0-1.5 0v4.59L7.3 9.24a.75.75 0 0 0-1.1 1.02l3.25 3.5a.75.75 0 0 0 1.1 0l3.25-3.5a.75.75 0 1 0-1.1-1.02l-1.95 2.1V6.75Z" clip-rule="evenodd" /></svg>
+                    </button>
+                </div>
+                }
+                @if (authService.canEdit()) {
+                  <button (click)="showAddAssetForm()" class="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-md shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5"><path d="M10.75 4.75a.75.75 0 0 0-1.5 0v4.5h-4.5a.75.75 0 0 0 0 1.5h4.5v4.5a.75.75 0 0 0 1.5 0v-4.5h4.5a.75.75 0 0 0 0-1.5h-4.5v-4.5Z" /></svg>
+                    Pridať nový spotrebič
+                  </button>
+                }
+              </div>
+            </div>
+            @if(showAdvancedFilters()) {
+              <div class="bg-slate-50 p-4 rounded-lg border border-slate-200">
+                  <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
+                      <div>
+                          <label for="filterManufacturer" class="block text-sm font-medium text-slate-700">Výrobca</label>
+                          <input type="text" id="filterManufacturer" [ngModel]="filterManufacturer()" (ngModelChange)="filterManufacturer.set($event)" class="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                      </div>
+                      <div>
+                          <label for="filterType" class="block text-sm font-medium text-slate-700">Typ</label>
+                          <input type="text" id="filterType" [ngModel]="filterType()" (ngModelChange)="filterType.set($event)" class="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                      </div>
+                      <div>
+                          <label for="filterYear" class="block text-sm font-medium text-slate-700">Rok výroby</label>
+                          <input type="number" id="filterYear" [ngModel]="filterYear()" (ngModelChange)="filterYear.set($event ? +$event : null)" class="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                      </div>
+                      <div>
+                          <label for="filterLocation" class="block text-sm font-medium text-slate-700">Lokalita</label>
+                          <input type="text" id="filterLocation" [ngModel]="filterLocation()" (ngModelChange)="filterLocation.set($event)" class="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                      </div>
+                       <div>
+                        <label for="filterCategory" class="block text-sm font-medium text-slate-700">Kategória</label>
+                        <select id="filterCategory" [ngModel]="filterCategory()" (ngModelChange)="filterCategory.set($event)" class="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                          <option value="">Všetky</option>
+                          <option value="Držané v ruke">Držané v ruke</option>
+                          <option value="Ostatné">Ostatné</option>
+                          <option value="Predlžovací prívod">Predlžovací prívod</option>
+                        </select>
+                      </div>
+                       <div>
+                          <label for="dateFrom" class="block text-sm font-medium text-slate-700">Kontrola od</label>
+                          <input type="date" id="dateFrom" [ngModel]="dateFilterStart()" (ngModelChange)="dateFilterStart.set($event)" class="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                      </div>
+                      <div>
+                          <label for="dateTo" class="block text-sm font-medium text-slate-700">Kontrola do</label>
+                          <input type="date" id="dateTo" [ngModel]="dateFilterEnd()" (ngModelChange)="dateFilterEnd.set($event)" class="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                      </div>
+                      <div>
+                          <label for="filterInspectionType" class="block text-sm font-medium text-slate-700">Typ kontroly</label>
+                          <select id="filterInspectionType" [ngModel]="filterInspectionType()" (ngModelChange)="filterInspectionType.set($event)" class="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                              <option value="all">Všetky</option>
+                              <option value="Revízia">Revízia</option>
+                              <option value="Kontrola">Kontrola</option>
+                          </select>
+                      </div>
+                      <div>
+                          <label for="filterInspectionResult" class="block text-sm font-medium text-slate-700">Výsledok kontroly</label>
+                          <select id="filterInspectionResult" [ngModel]="filterInspectionResult()" (ngModelChange)="filterInspectionResult.set($event)" class="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                              <option value="all">Všetky</option>
+                              <option value="vyhovuje">Vyhovuje</option>
+                              <option value="nevyhovuje">Nevyhovuje</option>
+                          </select>
+                      </div>
+                  </div>
+                  <div class="mt-4 flex justify-end">
+                      <button (click)="resetAdvancedFilters()" class="px-4 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-md hover:bg-slate-50">Resetovať filtre</button>
+                  </div>
+              </div>
+            }
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            @for (asset of paginatedAssets(); track asset.id) {
+              <div class="bg-white rounded-lg shadow-md overflow-hidden flex flex-col border border-slate-200 transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
+                <div class="p-5 flex-grow">
+                  <div class="flex justify-between items-start">
+                    <h2 class="text-lg font-bold text-slate-900">{{ asset.name }}</h2>
+                    <span class="inline-flex items-center gap-1.5 px-2 py-1 text-xs font-semibold rounded-full" [class]="{
+                        'bg-blue-100 text-blue-800': asset.status === 'Plánovaná',
+                        'bg-green-100 text-green-800': asset.status === 'V prevádzke',
+                        'bg-amber-100 text-amber-800': asset.status === 'V oprave',
+                        'bg-red-100 text-red-800': asset.status === 'Vyradené'
+                    }">
+                      <span class="h-1.5 w-1.5 rounded-full" [class]="{
+                          'bg-blue-500': asset.status === 'Plánovaná',
+                          'bg-green-500': asset.status === 'V prevádzke',
+                          'bg-amber-500': asset.status === 'V oprave',
+                          'bg-red-500': asset.status === 'Vyradené'
+                      }"></span>
+                      {{ asset.status }}
+                    </span>
+                  </div>
+                  <p class="text-sm text-slate-500">{{ asset.manufacturer }} {{ asset.type }}</p>
+                  <p class="text-sm text-slate-500 mt-1">Rev. číslo: <span class="font-semibold text-slate-600">{{ asset.revisionNumber }}</span></p>
+                </div>
+                @let urgency = getInspectionUrgencyStatus(asset);
+                <div class="px-5 py-3 border-t border-slate-200 flex items-center gap-3 transition-colors"
+                  [class.bg-red-50]="urgency === 'overdue'"
+                  [class.bg-orange-50]="urgency === 'dueSoon'"
+                  [class.bg-slate-50]="urgency === 'ok'"
+                  [class.bg-blue-50]="urgency === 'planned'">
+                  <div class="flex-shrink-0">
+                    @switch(urgency) {
+                      @case('overdue') {
+                        <div class="w-8 h-8 rounded-full bg-red-200 flex items-center justify-center" title="Revízia po termíne">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5 text-red-600"><path fill-rule="evenodd" d="M8.485 2.495c.673-1.167 2.357-1.167 3.03 0l6.28 10.875c.673 1.167-.17 2.625-1.516 2.625H3.72c-1.347 0-2.189-1.458-1.515-2.625L8.485 2.495ZM10 5a.75.75 0 0 1 .75.75v3.5a.75.75 0 0 1-1.5 0v-3.5A.75.75 0 0 1 10 5Zm0 9a1 1 0 1 0 0-2 1 1 0 0 0 0 2Z" clip-rule="evenodd" /></svg>
+                        </div>
+                      }
+                      @case('dueSoon') {
+                        <div class="w-8 h-8 rounded-full bg-orange-200 flex items-center justify-center" title="Blížiaci sa termín revízie">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5 text-orange-600"><path fill-rule="evenodd" d="M10 18a8 8 0 1 0 0-16 8 8 0 0 0 0 16Zm.75-13a.75.75 0 0 0-1.5 0v5c0 .414.336.75.75.75h4a.75.75 0 0 0 0-1.5h-3.25V5Z" clip-rule="evenodd" /></svg>
+                        </div>
+                      }
+                      @case('ok') {
+                        <div class="w-8 h-8 rounded-full bg-green-200 flex items-center justify-center" title="Termín revízie je v poriadku">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5 text-green-600"><path fill-rule="evenodd" d="M10 18a8 8 0 1 0 0-16 8 8 0 0 0 0 16Zm3.857-9.809a.75.75 0 0 0-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 1 0-1.06 1.061l2.5 2.5a.75.75 0 0 0 1.137-.089l4-5.5Z" clip-rule="evenodd" /></svg>
+                        </div>
+                      }
+                      @case('planned') {
+                        <div class="w-8 h-8 rounded-full bg-blue-200 flex items-center justify-center" title="Revízia je plánovaná">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5 text-blue-600"><path fill-rule="evenodd" d="M5.75 2a.75.75 0 0 1 .75.75V4h7V2.75a.75.75 0 0 1 1.5 0V4h.25A2.75 2.75 0 0 1 18 6.75v8.5A2.75 2.75 0 0 1 15.25 18H4.75A2.75 2.75 0 0 1 2 15.25v-8.5A2.75 2.75 0 0 1 4.75 4H5V2.75A.75.75 0 0 1 5.75 2Zm-1 5.5h10.5a.75.75 0 0 1 0 1.5H4.75a.75.75 0 0 1 0-1.5Z" clip-rule="evenodd" /></svg>
+                        </div>
+                      }
+                    }
+                  </div>
+                  <div>
+                    <p class="text-sm font-medium"
+                      [class.text-red-800]="urgency === 'overdue'"
+                      [class.text-orange-800]="urgency === 'dueSoon'"
+                      [class.text-slate-600]="urgency === 'ok'"
+                      [class.text-blue-800]="urgency === 'planned'">
+                      @if (urgency === 'overdue') {
+                          Revízia po termíne
+                      } @else {
+                          Ďalšia kontrola
+                      }
+                    </p>
+                    <p class="font-bold"
+                      [class.text-red-900]="urgency === 'overdue'"
+                      [class.text-orange-900]="urgency === 'dueSoon'"
+                      [class.text-slate-900]="urgency === 'ok'"
+                      [class.text-blue-900]="urgency === 'planned'"
+                      [class.text-slate-500]="asset.usageGroup === 'A'">
+                      @if (asset.usageGroup === 'A') {
+                        Nevyžaduje sa
+                      } @else if (asset.nextInspectionDate) {
+                        {{ asset.nextInspectionDate | date:'dd.MM.yyyy' }}
+                      } @else {
+                        Plánovaná
+                      }
+                    </p>
+                  </div>
+                </div>
+
+                <div class="p-3 bg-white border-t border-slate-200 flex items-center justify-between gap-2">
+                    <button (click)="showDetail(asset)" class="text-sm font-medium text-blue-600 hover:text-blue-800">Detail</button>
+                    <div class="flex items-center gap-1">
+                        @if (authService.canEdit()) {
+                            <button (click)="showAddInspectionForm(asset)" class="px-3 py-1.5 text-sm bg-green-600 text-white rounded-md shadow-sm hover:bg-green-700" title="Pridať revíziu/kontrolu">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5"><path fill-rule="evenodd" d="M10 18a8 8 0 1 0 0-16 8 8 0 0 0 0 16Zm.75-11.25a.75.75 0 0 0-1.5 0v2.25H7.5a.75.75 0 0 0 0 1.5h2.25V13a.75.75 0 0 0 1.5 0v-2.25H13a.75.75 0 0 0 0-1.5h-2.25V6.75Z" clip-rule="evenodd" /></svg>
+                            </button>
+                        }
+                        @if (authService.isAdmin()) {
+                            <button (click)="showEditAssetForm(asset)" class="p-2 text-slate-500 hover:bg-slate-100 rounded-md" title="Upraviť spotrebič">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5"><path d="m5.433 13.917 1.262-3.155A4 4 0 0 1 7.58 9.42l6.92-6.918a2.121 2.121 0 0 1 3 3l-6.92 6.918c-.383.383-.84.685-1.343.886l-3.154 1.262a.5.5 0 0 1-.65-.65Z" /><path d="M3.5 5.75c0-.69.56-1.25 1.25-1.25H10A.75.75 0 0 0 10 3H4.75A2.75 2.75 0 0 0 2 5.75v9.5A2.75 2.75 0 0 0 4.75 18h9.5A2.75 2.75 0 0 0 17 15.25V10a.75.75 0 0 0-1.5 0v5.25c0 .69-.56 1.25-1.25 1.25h-9.5c-.69 0-1.25-.56-1.25-1.25v-9.5Z" /></svg>
+                            </button>
+                        }
+                        <button (click)="showQrCode(asset)" class="p-2 text-slate-500 hover:bg-slate-100 rounded-md" title="Zobraziť čiarový kód">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5"><path fill-rule="evenodd" d="M12 5a1 1 0 0 1 1 1v.5a.5.5 0 0 0 1 0V6a2 2 0 0 0-2-2h-.5a.5.5 0 0 0 0 1H12ZM8 5a.5.5 0 0 0 0-1H7.5a2 2 0 0 0-2 2v.5a.5.5 0 0 0 1 0V6a1 1 0 0 1 1-1h.5ZM12.5 15a.5.5 0 0 0 1 0v-.5a1 1 0 0 1 1-1h.5a.5.5 0 0 0 0-1H14a2 2 0 0 0-2 2v.5ZM8 14a.5.5 0 0 0-.5.5V15a1 1 0 0 1-1 1h-.5a.5.5 0 0 0 0 1H6a2 2 0 0 0 2-2v-.5a.5.5 0 0 0-.5-.5Z" clip-rule="evenodd" /><path d="M6.75 7.75a.75.75 0 0 0-1.5 0v4.5a.75.75 0 0 0 1.5 0v-4.5Z" /><path d="M9.5 6.5a.5.5 0 0 0 0 1h1a.5.5 0 0 0 0-1h-1ZM8 9.5a.5.5 0 0 1 .5-.5h4a.5.5 0 0 1 0 1h-4a.5.5 0 0 1-.5-.5Zm2.5 2.5a.5.5 0 0 0 0-1h-1a.5.5 0 0 0 0 1h1Z" /><path d="M14.75 7.75a.75.75 0 0 0-1.5 0v4.5a.75.75 0 0 0 1.5 0v-4.5Z" /></svg>
+                        </button>
+                        <button (click)="generatePdf(asset)" class="p-2 text-slate-500 hover:bg-slate-100 rounded-md" title="Vytlačiť kartu spotrebiča">
+                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5"><path fill-rule="evenodd" d="M5 2.75C5 1.784 5.784 1 6.75 1h6.5c.966 0 1.75.784 1.75 1.75v3.552c.377.135.74.34 1.074.599V2.75A2.75 2.75 0 0 0 13.25 0h-6.5A2.75 2.75 0 0 0 4 2.75v14.5A2.75 2.75 0 0 0 6.75 20h6.5A2.75 2.75 0 0 0 16 17.25v-3.35a3.513 3.513 0 0 1-1 .099V17.25c0 .966-.784 1.75-1.75 1.75h-6.5A1.75 1.75 0 0 1 5 17.25V2.75Z" clip-rule="evenodd" /><path d="M9.25 11.5a.75.75 0 0 1 .75-.75h4a.75.75 0 0 1 0 1.5h-4a.75.75 0 0 1-.75-.75Zm0-3a.75.75 0 0 1 .75-.75h4a.75.75 0 0 1 0 1.5h-4a.75.75 0 0 1-.75-.75Z" /></svg>
+                        </button>
+                        @if (authService.isAdmin()) {
+                            <button (click)="deleteAsset(asset.id)" class="p-2 text-red-500 hover:bg-red-50 rounded-md" title="Odstrániť spotrebič">
+                               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5"><path fill-rule="evenodd" d="M8.75 1A2.75 2.75 0 0 0 6 3.75v.443c-.795.077-1.58.22-2.365.468a.75.75 0 1 0 .468 1.451c.773-.245 1.554-.39 2.365-.468V16.25A2.75 2.75 0 0 0 8.75 19h2.5A2.75 2.75 0 0 0 14 16.25V4.643c.811.078 1.592.223 2.365.468a.75.75 0 1 0 .468-1.451A8.25 8.25 0 0 0 14 3.75v-.443A2.75 2.75 0 0 0 11.25 1h-2.5ZM10 4c.84 0 1.5.66 1.5 1.5v.5h-3v-.5C8.5 4.66 9.16 4 10 4ZM8.5 8.25a.75.75 0 0 1 .75-.75h2a.75.75 0 0 1 0 1.5h-2a.75.75 0 0 1-.75-.75Zm0 3a.75.75 0 0 1 .75-.75h2a.75.75 0 0 1 0 1.5h-2a.75.75 0 0 1-.75-.75Z" clip-rule="evenodd" /></svg>
+                            </button>
+                        }
+                    </div>
+                </div>
+              </div>
+            } @empty {
+              <div class="md:col-span-2 lg:col-span-3 text-center py-12 bg-white rounded-lg shadow-md">
+                <svg class="mx-auto h-12 w-12 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+                <h3 class="mt-2 text-sm font-medium text-slate-900">Nenašli sa žiadne spotrebiče</h3>
+                <p class="mt-1 text-sm text-slate-500">Skúste zmeniť filtre alebo pridať nový spotrebič.</p>
+              </div>
+            }
+          </div>
+
+          <!-- Pagination Controls -->
+          @if (totalPages() > 1) {
+            <div class="mt-8 flex items-center justify-between">
+              <div class="flex flex-1 justify-between sm:hidden">
+                <button (click)="previousPage()" [disabled]="!paginationInfo().hasPrevious" class="relative inline-flex items-center rounded-md border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-50">Predchádzajúca</button>
+                <button (click)="nextPage()" [disabled]="!paginationInfo().hasNext" class="relative ml-3 inline-flex items-center rounded-md border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-50">Nasledujúca</button>
+              </div>
+              <div class="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
+                <div>
+                  <p class="text-sm text-slate-700">
+                    Zobrazuje sa
+                    <span class="font-medium">{{ paginationInfo().start }}</span>
+                    až
+                    <span class="font-medium">{{ paginationInfo().end }}</span>
+                    z
+                    <span class="font-medium">{{ paginationInfo().total }}</span>
+                    výsledkov
+                  </p>
+                </div>
+                <div>
+                  <nav class="isolate inline-flex -space-x-px rounded-md shadow-sm" aria-label="Pagination">
+                    <button (click)="previousPage()" [disabled]="!paginationInfo().hasPrevious" class="relative inline-flex items-center rounded-l-md px-2 py-2 text-slate-400 ring-1 ring-inset ring-slate-300 hover:bg-slate-50 focus:z-20 focus:outline-offset-0 disabled:opacity-50">
+                      <span class="sr-only">Predchádzajúca</span>
+                      <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M12.79 5.23a.75.75 0 010 1.06L9.06 10l3.73 3.71a.75.75 0 11-1.06 1.06l-4.25-4.25a.75.75 0 010-1.06l4.25-4.25a.75.75 0 011.06 0z" clip-rule="evenodd" /></svg>
+                    </button>
+                    @for(page of pages(); track $index) {
+                      @if(page === '...') {
+                        <span class="relative inline-flex items-center px-4 py-2 text-sm font-semibold text-slate-700 ring-1 ring-inset ring-slate-300">...</span>
+                      } @else {
+                        <button (click)="goToPage(page)" [attr.aria-current]="currentPage() === page ? 'page' : null"
+                                class="relative inline-flex items-center px-4 py-2 text-sm font-semibold ring-1 ring-inset focus:z-20 focus:outline-offset-0"
+                                [class.z-10]="currentPage() === page"
+                                [class.bg-blue-600]="currentPage() === page"
+                                [class.text-white]="currentPage() === page"
+                                [class.focus-visible:outline-blue-600]="currentPage() === page"
+                                [class.text-slate-900]="currentPage() !== page"
+                                [class.ring-slate-300]="currentPage() !== page"
+                                [class.hover:bg-slate-50]="currentPage() !== page">
+                          {{ page }}
+                        </button>
+                      }
+                    }
+                    <button (click)="nextPage()" [disabled]="!paginationInfo().hasNext" class="relative inline-flex items-center rounded-r-md px-2 py-2 text-slate-400 ring-1 ring-inset ring-slate-300 hover:bg-slate-50 focus:z-20 focus:outline-offset-0 disabled:opacity-50">
+                      <span class="sr-only">Nasledujúca</span>
+                      <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M7.21 14.77a.75.75 0 010-1.06L10.94 10 7.21 6.29a.75.75 0 111.06-1.06l4.25 4.25a.75.75 0 010 1.06l-4.25 4.25a.75.75 0 01-1.06 0z" clip-rule="evenodd" /></svg>
+                    </button>
+                  </nav>
+                </div>
+              </div>
+            </div>
+          }
+        }
+        @case ('detail') {
+          @if(selectedAsset(); as asset) {
+            <div class="bg-white p-6 rounded-lg shadow-md">
+              <button (click)="showList()" class="mb-6 flex items-center gap-2 text-sm font-medium text-blue-600 hover:text-blue-800">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5"><path fill-rule="evenodd" d="M17 10a.75.75 0 0 1-.75.75H5.612l4.158 3.96a.75.75 0 1 1-1.04 1.08l-5.5-5.25a.75.75 0 0 1 0-1.08l5.5-5.25a.75.75 0 1 1 1.04 1.08L5.612 9.25H16.25A.75.75 0 0 1 17 10Z" clip-rule="evenodd" /></svg>
+                Späť na zoznam
+              </button>
+              
+              <div class="flex justify-between items-start mb-6">
+                <div>
+                  <h2 class="text-3xl font-bold text-slate-800">{{ asset.name }}</h2>
+                  <p class="text-slate-500">{{ asset.manufacturer }} {{ asset.type }}</p>
+                </div>
+                <div class="flex items-center gap-3">
+                  <span class="text-lg font-semibold" [class]="{
+                      'text-blue-600': asset.status === 'Plánovaná',
+                      'text-green-600': asset.status === 'V prevádzke',
+                      'text-amber-600': asset.status === 'V oprave',
+                      'text-red-600': asset.status === 'Vyradené'
+                    }">{{ asset.status }}</span>
+                  @if (authService.canEdit()) {
+                    <button (click)="showAddInspectionForm(asset)" class="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-md shadow-sm hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors">
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5"><path d="M10.75 4.75a.75.75 0 0 0-1.5 0v4.5h-4.5a.75.75 0 0 0 0 1.5h4.5v4.5a.75.75 0 0 0 1.5 0v-4.5h4.5a.75.75 0 0 0 0-1.5h-4.5v-4.5Z" /></svg>
+                      Pridať revíziu/kontrolu
+                    </button>
+                  }
+                </div>
+              </div>
+
+              <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8 text-sm">
+                <div class="bg-slate-50 p-4 rounded-lg">
+                    <p class="text-slate-500">Revízne číslo</p>
+                    <p class="font-semibold text-slate-800 text-base">{{ asset.revisionNumber }}</p>
+                </div>
+                 <div class="bg-slate-50 p-4 rounded-lg">
+                    <p class="text-slate-500">Sériové číslo</p>
+                    <p class="font-semibold text-slate-800">{{ asset.serialNumber }}</p>
+                </div>
+                <div class="bg-slate-50 p-4 rounded-lg">
+                    <p class="text-slate-500">Rok výroby</p>
+                    <p class="font-semibold text-slate-800">{{ asset.year }}</p>
+                </div>
+                 <div class="bg-slate-50 p-4 rounded-lg">
+                    <p class="text-slate-500">Trieda ochrany</p>
+                    <p class="font-semibold text-slate-800" [title]="getProtectionClassTooltip(asset.protectionClass)">{{ asset.protectionClass }}</p>
+                </div>
+                <div class="bg-slate-50 p-4 rounded-lg">
+                    <p class="text-slate-500">Skupina používania</p>
+                    <p class="font-semibold text-slate-800" [title]="getUsageGroupTooltip(asset.usageGroup)">{{ asset.usageGroup }}</p>
+                </div>
+                <div class="bg-slate-50 p-4 rounded-lg">
+                    <p class="text-slate-500">Kategória</p>
+                    <p class="font-semibold text-slate-800">{{ asset.category }}</p>
+                </div>
+                 <div class="bg-slate-50 p-4 rounded-lg">
+                    <p class="text-slate-500">Lokalita</p>
+                    <p class="font-semibold text-slate-800">{{ asset.location || 'N/A' }}</p>
+                </div>
+                <div class="p-4 rounded-lg border" 
+                    [class.bg-orange-100]="asset.nextInspectionDate" 
+                    [class.border-orange-200]="asset.nextInspectionDate"
+                    [class.bg-blue-100]="!asset.nextInspectionDate"
+                    [class.border-blue-200]="!asset.nextInspectionDate">
+                    <p class="font-bold" [class.text-orange-600]="asset.nextInspectionDate" [class.text-blue-600]="!asset.nextInspectionDate">Dátum ďalšej kontroly</p>
+                    <p class="font-bold text-base" [class.text-orange-800]="asset.nextInspectionDate" [class.text-blue-800]="!asset.nextInspectionDate">
+                        @if (asset.nextInspectionDate) {
+                        {{ asset.nextInspectionDate | date:'dd.MM.yyyy' }}
+                        } @else {
+                        Plánovaná
+                        }
+                    </p>
+                </div>
+                 <div class="bg-slate-50 p-4 rounded-lg md:col-span-2">
+                    <p class="text-slate-500">Poznámky</p>
+                    <p class="font-semibold text-slate-800">{{ asset.notes || 'Žiadne poznámky.' }}</p>
+                </div>
+              </div>
+
+              <h3 class="text-xl font-bold text-slate-800 mb-4">História revízií a kontrol</h3>
+              @if (asset.inspections.length > 0) {
+                <div class="overflow-x-auto">
+                    <table class="min-w-full bg-white border border-slate-200">
+                        <thead class="bg-slate-50">
+                        <tr>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Dátum</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Typ</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Vykonal</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Výsledok</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Poznámka</th>
+                        </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-200">
+                        @for (inspection of asset.inspections; track inspection.id) {
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-800">{{ inspection.date | date:'dd.MM.yyyy' }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-500">{{ inspection.type }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-500">{{ inspection.inspector }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm">
+                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full" [class]="{
+                                        'bg-green-100 text-green-800': inspection.overallResult === 'vyhovuje',
+                                        'bg-red-100 text-red-800': inspection.overallResult === 'nevyhovuje'
+                                    }">
+                                    {{ inspection.overallResult }}
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-normal text-sm text-slate-500">{{ inspection.notes || '-' }}</td>
+                            </tr>
+                        }
+                        </tbody>
+                    </table>
+                </div>
+              } @else {
+                <p class="text-slate-500 text-center py-4 bg-slate-50 rounded-md">Žiadne záznamy o kontrolách.</p>
+              }
+            </div>
+          }
+        }
+        @case ('assetForm') {
+            <div class="bg-white p-6 rounded-lg shadow-md max-w-4xl mx-auto">
+                <h2 class="text-2xl font-bold text-slate-800 mb-6">{{ assetFormModel().id ? 'Upraviť spotrebič' : 'Pridať nový spotrebič' }}</h2>
+                <form (ngSubmit)="saveAsset()" class="space-y-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label for="name" class="block text-sm font-medium text-slate-700">Názov spotrebiča <span class="text-red-500">*</span></label>
+                            <input type="text" id="name" name="name" required
+                                   [ngModel]="assetFormModel().name" (ngModelChange)="updateAssetFormField('name', $event)"
+                                   class="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                                   [class.border-red-500]="assetFormErrors()['name']">
+                            @if(assetFormErrors()['name']) {
+                              <p class="mt-1 text-sm text-red-600">{{ assetFormErrors()['name'] }}</p>
+                            }
+                        </div>
+                        <div>
+                            <label for="status" class="block text-sm font-medium text-slate-700">Stav</label>
+                            <select id="status" name="status"
+                                    [ngModel]="assetFormModel().status" (ngModelChange)="updateAssetFormField('status', $event)"
+                                    class="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                                <option>Plánovaná</option>
+                                <option>V prevádzke</option>
+                                <option>V oprave</option>
+                                <option>Vyradené</option>
+                            </select>
+                        </div>
+                         <div>
+                            <label for="revisionNumber" class="block text-sm font-medium text-slate-700">Revízne číslo <span class="text-red-500">*</span></label>
+                            <input type="text" id="revisionNumber" name="revisionNumber" required 
+                                   [ngModel]="assetFormModel().revisionNumber" (ngModelChange)="updateAssetFormField('revisionNumber', $event)"
+                                   class="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                                   [class.border-red-500]="assetFormErrors()['revisionNumber']">
+                            @if(assetFormErrors()['revisionNumber']) {
+                              <p class="mt-1 text-sm text-red-600">{{ assetFormErrors()['revisionNumber'] }}</p>
+                            }
+                            @if (!assetFormModel().id && assetService.lastUsedRevisionNumber(); as lastRevNum) {
+                                <p class="mt-2 text-sm text-slate-500">Posledné použité rev. číslo: <strong class="text-slate-700">{{ lastRevNum }}</strong></p>
+                            }
+                        </div>
+                        <div>
+                            <label for="serialNumber" class="block text-sm font-medium text-slate-700">Sériové / Výrobné číslo <span class="text-red-500">*</span></label>
+                            <input type="text" id="serialNumber" name="serialNumber" required
+                                   [ngModel]="assetFormModel().serialNumber" (ngModelChange)="updateAssetFormField('serialNumber', $event)"
+                                   class="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                                   [class.border-red-500]="assetFormErrors()['serialNumber']">
+                            @if(assetFormErrors()['serialNumber']) {
+                              <p class="mt-1 text-sm text-red-600">{{ assetFormErrors()['serialNumber'] }}</p>
+                            }
+                        </div>
+                        <div>
+                            <label for="manufacturer" class="block text-sm font-medium text-slate-700">Výrobca</label>
+                            <input type="text" id="manufacturer" name="manufacturer" 
+                                   [ngModel]="assetFormModel().manufacturer" (ngModelChange)="updateAssetFormField('manufacturer', $event)"
+                                   class="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                        </div>
+                         <div>
+                            <label for="type" class="block text-sm font-medium text-slate-700">Typ</label>
+                            <input type="text" id="type" name="type"
+                                   [ngModel]="assetFormModel().type" (ngModelChange)="updateAssetFormField('type', $event)"
+                                   class="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label for="year" class="block text-sm font-medium text-slate-700">Rok výroby <span class="text-red-500">*</span></label>
+                            <input type="number" id="year" name="year"
+                                   [ngModel]="assetFormModel().year" (ngModelChange)="updateAssetFormField('year', $event === null ? undefined : $event)"
+                                   class="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                                   [class.border-red-500]="assetFormErrors()['year']">
+                            @if(assetFormErrors()['year']) {
+                                <p class="mt-1 text-sm text-red-600">{{ assetFormErrors()['year'] }}</p>
+                            }
+                        </div>
+                        <div>
+                            <div class="flex items-center gap-1.5">
+                                <label for="protectionClass" class="block text-sm font-medium text-slate-700">Trieda ochrany</label>
+                                <div class="relative flex items-center group">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4 text-slate-400 cursor-help"><path fill-rule="evenodd" d="M18 10a8 8 0 1 1-16 0 8 8 0 0 1 16 0Zm-7-4a1 1 0 1 1-2 0 1 1 0 0 1 2 0ZM9 9a.75.75 0 0 0 0 1.5h.253a.25.25 0 0 1 .244.304l-.459 2.066A.75.75 0 0 0 10 12.5a.75.75 0 0 0 .75-.75l.459-2.066A.25.25 0 0 1 11.453 9H11.5a.75.75 0 0 0 0-1.5H9Z" clip-rule="evenodd" /></svg>
+                                    <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-72 p-3 bg-slate-700 text-white text-xs rounded-md shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none z-10 before:content-[''] before:absolute before:top-full before:left-1/2 before:-translate-x-1/2 before:border-8 before:border-transparent before:border-t-slate-700">
+                                        {{ getProtectionClassTooltip(assetFormModel().protectionClass || 'I') }}
+                                    </div>
+                                </div>
+                            </div>
+                            <select id="protectionClass" name="protectionClass"
+                                    [ngModel]="assetFormModel().protectionClass" (ngModelChange)="updateAssetFormField('protectionClass', $event)"
+                                    class="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                                <option>I</option>
+                                <option>II</option>
+                                <option>III</option>
+                            </select>
+                        </div>
+                         <div>
+                             <div class="flex items-center gap-1.5">
+                                <label for="usageGroup" class="block text-sm font-medium text-slate-700">Skupina používania</label>
+                                 <div class="relative flex items-center group">
+                                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4 text-slate-400 cursor-help"><path fill-rule="evenodd" d="M18 10a8 8 0 1 1-16 0 8 8 0 0 1 16 0Zm-7-4a1 1 0 1 1-2 0 1 1 0 0 1 2 0ZM9 9a.75.75 0 0 0 0 1.5h.253a.25.25 0 0 1 .244.304l-.459 2.066A.75.75 0 0 0 10 12.5a.75.75 0 0 0 .75-.75l.459-2.066A.25.25 0 0 1 11.453 9H11.5a.75.75 0 0 0 0-1.5H9Z" clip-rule="evenodd" /></svg>
+                                     <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-72 p-3 bg-slate-700 text-white text-xs rounded-md shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none z-10 before:content-[''] before:absolute before:top-full before:left-1/2 before:-translate-x-1/2 before:border-8 before:border-transparent before:border-t-slate-700">
+                                        {{ getUsageGroupTooltip(assetFormModel().usageGroup || 'A') }}
+                                    </div>
+                                </div>
+                            </div>
+                            <select id="usageGroup" name="usageGroup"
+                                    [ngModel]="assetFormModel().usageGroup" (ngModelChange)="updateAssetFormField('usageGroup', $event)"
+                                    class="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                                <option value="A">A - Prenájom</option>
+                                <option value="B">B - Vonkajšie prostredie / stavby</option>
+                                <option value="C">C - Priemysel / remeslo</option>
+                                <option value="D">D - Verejné priestory</option>
+                                <option value="E">E - Administratíva</option>
+                            </select>
+                        </div>
+                        <div>
+                             <div class="flex items-center gap-1.5">
+                                <label for="category" class="block text-sm font-medium text-slate-700">Kategória</label>
+                                <div class="relative flex items-center group">
+                                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4 text-slate-400 cursor-help"><path fill-rule="evenodd" d="M18 10a8 8 0 1 1-16 0 8 8 0 0 1 16 0Zm-7-4a1 1 0 1 1-2 0 1 1 0 0 1 2 0ZM9 9a.75.75 0 0 0 0 1.5h.253a.25.25 0 0 1 .244.304l-.459 2.066A.75.75 0 0 0 10 12.5a.75.75 0 0 0 .75-.75l.459-2.066A.25.25 0 0 1 11.453 9H11.5a.75.75 0 0 0 0-1.5H9Z" clip-rule="evenodd" /></svg>
+                                     <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-72 p-3 bg-slate-700 text-white text-xs rounded-md shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none z-10 before:content-[''] before:absolute before:top-full before:left-1/2 before:-translate-x-1/2 before:border-8 before:border-transparent before:border-t-slate-700">
+                                        {{ getCategoryTooltip(assetFormModel().category || 'Držané v ruke') }}
+                                    </div>
+                                </div>
+                            </div>
+                            <select id="category" name="category"
+                                    [ngModel]="assetFormModel().category" (ngModelChange)="updateAssetFormField('category', $event)"
+                                    class="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                                <option>Držané v ruke</option>
+                                <option>Ostatné</option>
+                                <option>Predlžovací prívod</option>
+                            </select>
+                        </div>
+                        <div class="md:col-span-2">
+                            <label for="location" class="block text-sm font-medium text-slate-700">Lokalita</label>
+                            <input type="text" id="location" name="location"
+                                   [ngModel]="assetFormModel().location" (ngModelChange)="updateAssetFormField('location', $event)"
+                                   class="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                        </div>
+                         <div class="md:col-span-2">
+                            <label for="notes" class="block text-sm font-medium text-slate-700">Poznámky</label>
+                            <textarea id="notes" name="notes" rows="3"
+                                      [ngModel]="assetFormModel().notes" (ngModelChange)="updateAssetFormField('notes', $event)"
+                                      class="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"></textarea>
+                        </div>
+                    </div>
+                    <div class="flex justify-end gap-4">
+                        <button type="button" (click)="showList()" class="px-4 py-2 bg-slate-100 text-slate-700 border border-slate-300 rounded-md shadow-sm hover:bg-slate-200">Zrušiť</button>
+                        <button type="submit" [disabled]="!isAssetFormValid()" class="px-4 py-2 bg-blue-600 text-white rounded-md shadow-sm hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed">Uložiť spotrebič</button>
+                    </div>
+                </form>
+            </div>
+        }
+        @case ('inspectionForm') {
+            @if (selectedAsset(); as asset) {
+            <div class="bg-white p-6 rounded-lg shadow-md max-w-4xl mx-auto">
+                <h2 class="text-2xl font-bold text-slate-800 mb-2">Nová revízia / kontrola</h2>
+                <p class="text-slate-500 mb-6">pre spotrebič: <span class="font-semibold">{{ asset.name }} ({{asset.revisionNumber}})</span></p>
+                <form (ngSubmit)="saveInspection()" class="space-y-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label for="insp-date" class="block text-sm font-medium text-slate-700">Dátum</label>
+                            <input type="date" id="insp-date" name="date" required 
+                                   [ngModel]="inspectionFormModel().date" (ngModelChange)="updateInspectionFormField('date', $event)"
+                                   class="mt-1 block w-full rounded-md border-slate-300 shadow-sm"
+                                   [class.border-red-500]="inspectionFormErrors()['date']">
+                            @if(inspectionFormErrors()['date']) {
+                                <p class="mt-1 text-sm text-red-600">{{ inspectionFormErrors()['date'] }}</p>
+                            }
+                        </div>
+                        <div>
+                            <label for="insp-type" class="block text-sm font-medium text-slate-700">Typ záznamu</label>
+                            <select id="insp-type" name="type" required 
+                                    [ngModel]="inspectionFormModel().type" (ngModelChange)="updateInspectionFormField('type', $event)"
+                                    class="mt-1 block w-full rounded-md border-slate-300 shadow-sm">
+                                <option>Revízia</option>
+                                <option>Kontrola</option>
+                            </select>
+                        </div>
+                         <div>
+                            <label for="insp-inspector" class="block text-sm font-medium text-slate-700">Vykonal</label>
+                            <input type="text" id="insp-inspector" name="inspector" required
+                                   [ngModel]="inspectionFormModel().inspector" (ngModelChange)="updateInspectionFormField('inspector', $event)"
+                                   class="mt-1 block w-full rounded-md border-slate-300 shadow-sm"
+                                   [class.border-red-500]="inspectionFormErrors()['inspector']">
+                            @if(inspectionFormErrors()['inspector']) {
+                                <p class="mt-1 text-sm text-red-600">{{ inspectionFormErrors()['inspector'] }}</p>
+                            }
+                        </div>
+                        <div>
+                            <label for="insp-visual" class="block text-sm font-medium text-slate-700">Vizuálna kontrola</label>
+                            <select id="insp-visual" name="visualCheck" required
+                                    [ngModel]="inspectionFormModel().visualCheck" (ngModelChange)="updateInspectionFormField('visualCheck', $event)"
+                                    class="mt-1 block w-full rounded-md border-slate-300 shadow-sm">
+                                <option>vyhovuje</option>
+                                <option>nevyhovuje</option>
+                            </select>
+                        </div>
+                        @if (asset.protectionClass === 'I') {
+                        <div>
+                            <label for="insp-resistance" class="block text-sm font-medium text-slate-700">
+                                Odpor ochranného vodiča (Ω)
+                                @if (inspectionFormModel().type === 'Revízia') {
+                                    <span class="text-red-600">*</span>
+                                }
+                            </label>
+                            <input type="number" step="0.01" id="insp-resistance" name="protectiveConductorResistance"
+                                   [ngModel]="inspectionFormModel().protectiveConductorResistance" (ngModelChange)="updateInspectionFormField('protectiveConductorResistance', $event)"
+                                   class="mt-1 block w-full rounded-md border-slate-300 shadow-sm"
+                                   [class.border-red-500]="inspectionFormErrors()['protectiveConductorResistance']">
+                             @if(inspectionFormErrors()['protectiveConductorResistance']) {
+                                <p class="mt-1 text-sm text-red-600">{{ inspectionFormErrors()['protectiveConductorResistance'] }}</p>
+                            }
+                        </div>
+                        }
+                        <div>
+                            <label for="insp-insulation" class="block text-sm font-medium text-slate-700">
+                                Izolačný odpor (MΩ)
+                                @if (inspectionFormModel().type === 'Revízia') {
+                                    <span class="text-red-600">*</span>
+                                }
+                            </label>
+                            <input type="number" step="0.1" id="insp-insulation" name="insulationResistance"
+                                   [ngModel]="inspectionFormModel().insulationResistance" (ngModelChange)="updateInspectionFormField('insulationResistance', $event)"
+                                   class="mt-1 block w-full rounded-md border-slate-300 shadow-sm"
+                                   [class.border-red-500]="inspectionFormErrors()['insulationResistance']">
+                            @if(inspectionFormErrors()['insulationResistance']) {
+                                <p class="mt-1 text-sm text-red-600">{{ inspectionFormErrors()['insulationResistance'] }}</p>
+                            }
+                        </div>
+                         <div>
+                            <label for="insp-leakage" class="block text-sm font-medium text-slate-700">Unikajúci prúd (mA)</label>
+                            <input type="number" step="0.01" id="insp-leakage" name="leakageCurrent"
+                                   [ngModel]="inspectionFormModel().leakageCurrent" (ngModelChange)="updateInspectionFormField('leakageCurrent', $event)"
+                                   class="mt-1 block w-full rounded-md border-slate-300 shadow-sm"
+                                   [class.border-red-500]="inspectionFormErrors()['leakageCurrent']">
+                             @if(inspectionFormErrors()['leakageCurrent']) {
+                                <p class="mt-1 text-sm text-red-600">{{ inspectionFormErrors()['leakageCurrent'] }}</p>
+                            }
+                        </div>
+                        <div>
+                            <label for="insp-functional" class="block text-sm font-medium text-slate-700">Funkčná skúška</label>
+                            <select id="insp-functional" name="functionalTest" required
+                                    [ngModel]="inspectionFormModel().functionalTest" (ngModelChange)="updateInspectionFormField('functionalTest', $event)"
+                                    class="mt-1 block w-full rounded-md border-slate-300 shadow-sm">
+                                <option>vyhovuje</option>
+                                <option>nevyhovuje</option>
+                            </select>
+                        </div>
+                         <div class="md:col-span-2">
+                            <label for="insp-overall" class="block text-sm font-medium text-slate-700">Celkový výsledok</label>
+                            <select id="insp-overall" name="overallResult" required
+                                    [ngModel]="inspectionFormModel().overallResult" (ngModelChange)="updateInspectionFormField('overallResult', $event)"
+                                    class="mt-1 block w-full rounded-md border-slate-300 shadow-sm">
+                                <option>vyhovuje</option>
+                                <option>nevyhovuje</option>
+                            </select>
+                        </div>
+
+                        <!-- Measuring Instrument Section -->
+                        <div class="md:col-span-2 border-t pt-6 mt-6">
+                            <h3 class="text-lg font-medium text-slate-800 mb-4">Údaje o meracom prístroji</h3>
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                <div>
+                                    <label for="insp-inst-name" class="block text-sm font-medium text-slate-700">Názov prístroja</label>
+                                    <input type="text" id="insp-inst-name" name="measuringInstrumentName"
+                                        [ngModel]="inspectionFormModel().measuringInstrumentName" (ngModelChange)="updateInspectionFormField('measuringInstrumentName', $event)"
+                                        class="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                                </div>
+                                <div>
+                                    <label for="insp-inst-serial" class="block text-sm font-medium text-slate-700">Sériové číslo</label>
+                                    <input type="text" id="insp-inst-serial" name="measuringInstrumentSerial"
+                                        [ngModel]="inspectionFormModel().measuringInstrumentSerial" (ngModelChange)="updateInspectionFormField('measuringInstrumentSerial', $event)"
+                                        class="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                                </div>
+                                <div>
+                                    <label for="insp-inst-calib" class="block text-sm font-medium text-slate-700">Platnosť kalibrácie do</label>
+                                    <input type="date" id="insp-inst-calib" name="measuringInstrumentCalibDate"
+                                        [ngModel]="inspectionFormModel().measuringInstrumentCalibDate" (ngModelChange)="updateInspectionFormField('measuringInstrumentCalibDate', $event)"
+                                        class="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="md:col-span-2">
+                            <label for="insp-notes" class="block text-sm font-medium text-slate-700">Poznámky</label>
+                            <textarea id="insp-notes" name="notes" rows="3"
+                                      [ngModel]="inspectionFormModel().notes" (ngModelChange)="updateInspectionFormField('notes', $event)"
+                                      class="mt-1 block w-full rounded-md border-slate-300 shadow-sm"></textarea>
+                        </div>
+                    </div>
+                     <div class="flex justify-end gap-4">
+                        <button type="button" (click)="showDetail(asset)" class="px-4 py-2 bg-slate-100 text-slate-700 border border-slate-300 rounded-md shadow-sm hover:bg-slate-200">Zrušiť</button>
+                        <button type="submit" [disabled]="!isInspectionFormValid()" class="px-4 py-2 bg-blue-600 text-white rounded-md shadow-sm hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed">Uložiť záznam</button>
+                    </div>
+                </form>
+            </div>
+            }
+        }
+        @case ('qrScanner') {
+            <div class="bg-white p-6 rounded-lg shadow-md max-w-2xl mx-auto text-center">
+                 <button (click)="showList()" class="mb-6 flex items-center gap-2 text-sm font-medium text-blue-600 hover:text-blue-800">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5"><path fill-rule="evenodd" d="M17 10a.75.75 0 0 1-.75.75H5.612l4.158 3.96a.75.75 0 1 1-1.04 1.08l-5.5-5.25a.75.75 0 0 1 0-1.08l5.5-5.25a.75.75 0 1 1 1.04 1.08L5.612 9.25H16.25A.75.75 0 0 1 17 10Z" clip-rule="evenodd" /></svg>
+                    Späť na zoznam
+                </button>
+                <h2 class="text-2xl font-bold text-slate-800 mb-4">Skenovanie čiarového kódu</h2>
+                <div class="relative w-full aspect-square bg-slate-200 rounded-lg overflow-hidden mb-4 border-4" [class.border-slate-300]="scannerStatus() !== 'error'" [class.border-red-400]="scannerStatus() === 'error'">
+                    <div #scannerVideo class="w-full h-full"></div>
+                    @if (scannerStatus() === 'scanning') {
+                        <div class="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50">
+                            <p class="text-white text-lg font-semibold">Vyhľadávam kameru...</p>
+                        </div>
+                    }
+                </div>
+
+                @if (scannerStatus() === 'error') {
+                    <div class="p-4 mb-4 text-sm text-red-700 bg-red-100 rounded-lg" role="alert">
+                      <span class="font-medium">Chyba!</span> {{ scannerError() }}
+                    </div>
+                }
+                 
+                <p class="text-slate-500 mb-4">alebo</p>
+                
+                <label class="cursor-pointer inline-flex items-center gap-2 px-4 py-2 bg-slate-600 text-white rounded-md shadow-sm hover:bg-slate-700">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5"><path d="M9.994 4.5a.75.75 0 0 1 .75.75v3.41l1.47-1.47a.75.75 0 1 1 1.06 1.06l-2.75 2.75a.75.75 0 0 1-1.06 0L6.714 8.28a.75.75 0 1 1 1.06-1.06l1.47 1.47v-3.41a.75.75 0 0 1 .75-.75Z" /><path d="M5.25 12a.75.75 0 0 0-1.5 0v2.25c0 .966.784 1.75 1.75 1.75h8.5a1.75 1.75 0 0 0 1.75-1.75V12a.75.75 0 0 0-1.5 0v2.25a.25.25 0 0 1-.25.25h-8.5a.25.25 0 0 1-.25-.25V12Z" /></svg>
+                    Nahrať čiarový kód z obrázka
+                    <input type="file" class="hidden" (change)="handleFileSelect($event)" accept="image/*">
+                </label>
+            </div>
+        }
+        @case('userManagement') {
+             @if(authService.isAdmin()) {
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <div class="flex justify-between items-center mb-6">
+                        <div>
+                            <h2 class="text-2xl font-bold text-slate-800">Správa používateľov</h2>
+                            <p class="text-slate-500">Upravujte údaje existujúcich používateľov. Nových používateľov vytvárajte priamo v Supabase.</p>
+                        </div>
+                        <button (click)="showList()" class="flex items-center gap-2 text-sm font-medium text-blue-600 hover:text-blue-800">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5"><path fill-rule="evenodd" d="M17 10a.75.75 0 0 1-.75.75H5.612l4.158 3.96a.75.75 0 1 1-1.04 1.08l-5.5-5.25a.75.75 0 0 1 0-1.08l5.5-5.25a.75.75 0 1 1 1.04 1.08L5.612 9.25H16.25A.75.75 0 0 1 17 10Z" clip-rule="evenodd" /></svg>
+                            Späť na zoznam
+                        </button>
+                    </div>
+                    
+                    <div class="flex justify-between items-center mb-4">
+                        <div class="relative">
+                            <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5 text-slate-400"><path fill-rule="evenodd" d="M9 3.5a5.5 5.5 0 1 0 0 11 5.5 5.5 0 0 0 0-11ZM2 9a7 7 0 1 1 12.452 4.391l3.328 3.329a.75.75 0 1 1-1.06 1.06l-3.329-3.328A7 7 0 0 1 2 9Z" clip-rule="evenodd" /></svg>
+                            </div>
+                            <input type="search" [ngModel]="userSearchQuery()" (ngModelChange)="userSearchQuery.set($event)" placeholder="Hľadať používateľa..." class="block w-full rounded-md border-slate-300 pl-10 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                        </div>
+                    </div>
+
+                    <div class="overflow-x-auto border border-slate-200 rounded-lg">
+                        <table class="min-w-full divide-y divide-slate-200">
+                        <thead class="bg-slate-50">
+                            <tr>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Používateľské meno</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Celé meno</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Email</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Rola</th>
+                            <th scope="col" class="relative px-6 py-3"><span class="sr-only">Akcie</span></th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-slate-200">
+                            @for(u of filteredUsers(); track u.id) {
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-slate-900">{{ u.username }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-500">{{ u.fullName }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-500">{{ u.email }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-500">{{ u.role }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                <button (click)="showEditUserForm(u)" class="text-blue-600 hover:text-blue-900 mr-4">Upraviť</button>
+                                <button (click)="deleteUser(u)" class="text-red-600 hover:text-red-900" [disabled]="u.id === authService.currentUser()?.id">Odstrániť</button>
+                                </td>
+                            </tr>
+                            } @empty {
+                                <tr>
+                                    <td colspan="5" class="text-center py-8 text-slate-500">
+                                        Nenašli sa žiadni používatelia.
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                        </table>
+                    </div>
+                </div>
+             } @else {
+                <div class="bg-white p-6 rounded-lg shadow-md text-center">
+                    <h2 class="text-2xl font-bold text-red-600">Prístup zamietnutý</h2>
+                    <p class="text-slate-600 mt-2">Na zobrazenie tejto stránky nemáte dostatočné oprávnenia.</p>
+                    <button (click)="showList()" class="mt-6 px-4 py-2 bg-blue-600 text-white rounded-md shadow-sm hover:bg-blue-700">Späť na zoznam</button>
+                </div>
+             }
+        }
+      }
+    </main>
+  </div>
+  
+  <!-- QR Code Modal -->
+  @if(isQrModalOpen() && selectedAsset(); as asset) {
+      <div class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50">
+        <div class="bg-white p-8 rounded-lg shadow-2xl text-center relative max-w-md w-full">
+            <button (click)="isQrModalOpen.set(false)" class="absolute top-2 right-2 p-2 text-slate-400 hover:text-slate-600">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+            </button>
+            <h3 class="text-xl font-bold mb-2">{{ asset.name }}</h3>
+            <p class="text-slate-500 mb-4">Rev. číslo: {{ asset.revisionNumber }}</p>
+            <img [src]="qrCodeDataUrl()" alt="QR Code" class="mx-auto border-4 border-slate-200 rounded-md">
+        </div>
+      </div>
+  }
+
+  <!-- User Edit Modal -->
+  @if(isUserFormModalOpen()) {
+    <div class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50">
+        <div class="bg-white p-8 rounded-lg shadow-2xl relative max-w-lg w-full">
+            <h3 class="text-2xl font-bold mb-6">Upraviť používateľa</h3>
+            <form (ngSubmit)="saveUser()" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-2">Používateľské meno (podľa role)</label>
+                    <input type="text" [value]="userFormModel().username" disabled
+                           class="block w-full rounded-md border-slate-300 bg-slate-100 shadow-sm">
+                    <p class="mt-1 text-xs text-slate-500">Používateľské meno je fixné podľa role nastavenej v Supabase</p>
+                </div>
+                <div>
+                    <label for="user-fullname" class="block text-sm font-medium text-slate-700">Celé meno *</label>
+                    <input type="text" id="user-fullname" name="fullName" required
+                           [ngModel]="userFormModel().fullName" (ngModelChange)="updateUserFormField('fullName', $event)"
+                           class="mt-1 block w-full rounded-md border-slate-300 shadow-sm">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-2">Email</label>
+                    <input type="email" [value]="userFormModel().email" disabled
+                           class="block w-full rounded-md border-slate-300 bg-slate-100 shadow-sm">
+                    <p class="mt-1 text-xs text-slate-500">Email sa upravuje v Supabase Authentication</p>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-2">Rola</label>
+                    <input type="text" [value]="userFormModel().role" disabled
+                           class="block w-full rounded-md border-slate-300 bg-slate-100 shadow-sm">
+                    <p class="mt-1 text-xs text-slate-500">Rola sa upravuje v Supabase databáze (tabuľka profiles)</p>
+                </div>
+                <div class="p-4 bg-amber-50 border border-amber-200 rounded-md">
+                    <p class="text-sm text-amber-800">
+                        <strong>Poznámka:</strong> Pre zmenu hesla, emailu alebo role použite Supabase rozhranie. 
+                        Používateľ si môže zmeniť heslo aj cez "Zabudnuté heslo" na prihlasovacej stránke.
+                    </p>
+                </div>
+                <div class="flex justify-end gap-4 pt-4">
+                    <button type="button" (click)="isUserFormModalOpen.set(false)" class="px-4 py-2 bg-slate-100 text-slate-700 border border-slate-300 rounded-md shadow-sm hover:bg-slate-200">Zrušiť</button>
+                    <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-md shadow-sm hover:bg-blue-700">Uložiť</button>
+                </div>
+            </form>
+        </div>
+    </div>
+  }
+
+  <!-- Delete User Confirmation Modal -->
+  @if(userToDelete(); as userToDelete) {
+     <div class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50">
+        <div class="bg-white rounded-lg shadow-xl p-6 max-w-md w-full">
+            <div class="sm:flex sm:items-start">
+                <div class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-red-100 sm:mx-0 sm:h-10 sm:w-10">
+                    <svg class="h-6 w-6 text-red-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" /></svg>
+                </div>
+                <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
+                    <h3 class="text-lg leading-6 font-medium text-slate-900">Odstrániť používateľa</h3>
+                    <div class="mt-2">
+                        <p class="text-sm text-slate-500">
+                            Naozaj si prajete natrvalo odstrániť používateľa <strong>{{ userToDelete.username }}</strong>? Túto akciu nie je možné vrátiť späť.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-5 sm:mt-4 sm:flex sm:flex-row-reverse">
+                <button type="button" (click)="confirmDeleteUser()" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-red-600 text-base font-medium text-white hover:bg-red-700 sm:ml-3 sm:w-auto sm:text-sm">Odstrániť</button>
+                <button type="button" (click)="cancelDeleteUser()" class="mt-3 w-full inline-flex justify-center rounded-md border border-slate-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-slate-700 hover:bg-slate-50 sm:mt-0 sm:w-auto sm:text-sm">Zrušiť</button>
+            </div>
+        </div>
+     </div>
+  }
+
+  <!-- Settings Modal -->
+  @if(isSettingsModalOpen()) {
+    <div class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50">
+        <div class="bg-white p-8 rounded-lg shadow-2xl relative max-w-lg w-full">
+            <h3 class="text-2xl font-bold mb-6">Nastavenia prevádzkovateľa</h3>
+            <form (ngSubmit)="saveSettings()" class="space-y-4">
+                <div>
+                    <label for="op-name" class="block text-sm font-medium text-slate-700">Názov prevádzkovateľa</label>
+                    <input type="text" id="op-name" name="name" required
+                           [ngModel]="operatorInfoFormModel().name" (ngModelChange)="updateOperatorInfoFormField('name', $event)"
+                           class="mt-1 block w-full rounded-md border-slate-300 shadow-sm">
+                </div>
+                <div>
+                    <label for="op-address" class="block text-sm font-medium text-slate-700">Adresa</label>
+                    <input type="text" id="op-address" name="address" required
+                           [ngModel]="operatorInfoFormModel().address" (ngModelChange)="updateOperatorInfoFormField('address', $event)"
+                           class="mt-1 block w-full rounded-md border-slate-300 shadow-sm">
+                </div>
+                <div>
+                    <label for="op-ico" class="block text-sm font-medium text-slate-700">IČO</label>
+                    <input type="text" id="op-ico" name="ico" required
+                           [ngModel]="operatorInfoFormModel().ico" (ngModelChange)="updateOperatorInfoFormField('ico', $event)"
+                           class="mt-1 block w-full rounded-md border-slate-300 shadow-sm">
+                </div>
+                <div class="flex justify-end gap-4 pt-4">
+                    <button type="button" (click)="isSettingsModalOpen.set(false)" class="px-4 py-2 bg-slate-100 text-slate-700 border border-slate-300 rounded-md shadow-sm hover:bg-slate-200">Zrušiť</button>
+                    <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-md shadow-sm hover:bg-blue-700">Uložiť</button>
+                </div>
+            </form>
+        </div>
+    </div>
+  }
+} @else {
+  <!-- Login view -->
+  <div class="min-h-screen bg-slate-100 flex items-center justify-center p-4">
+    <div class="max-w-md w-full bg-white p-8 rounded-xl shadow-lg">
+      <h2 class="text-3xl font-bold text-center text-slate-800 mb-2">Vitajte!</h2>
+      <p class="text-center text-slate-500 mb-8">Prihláste sa do evidencie spotrebičov.</p>
+      <form (ngSubmit)="login()" class="space-y-6">
+        <div>
+          <label for="username" class="block text-sm font-medium text-slate-700">Prihlasovacie meno</label>
+          <div class="mt-1">
+            <input id="username" name="username" type="text" required [(ngModel)]="username"
+                   class="appearance-none block w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm placeholder-slate-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+          </div>
+        </div>
+        <div>
+          <label for="password" class="block text-sm font-medium text-slate-700">Heslo</label>
+          <div class="mt-1">
+            <input id="password" name="password" type="password" required [(ngModel)]="password"
+                   class="appearance-none block w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm placeholder-slate-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+          </div>
+        </div>
+        @if(loginError()) {
+            <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+                <span class="block sm:inline">{{ loginError() }}</span>
+            </div>
+        }
+        <div>
+          <button type="submit"
+                  class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+            Prihlásiť sa
+          </button>
+        </div>
+      </form>
+       <div class="mt-6 text-center text-sm text-slate-500">
+          <p>Demo účty:</p>
+          <p>admin / password</p>
+          <p>revizor / password</p>
+          <p>user / password</p>
+       </div>
+    </div>
+  </div>
+}
