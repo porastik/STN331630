@@ -95,7 +95,7 @@ export class AuthService {
       console.log('[Auth] Current user set:', user.email);
     } catch (error) {
       console.error('[Auth] Error loading profile:', error);
-      throw error; // Re-throw to handle in login
+      // Don't throw - just log the error
     }
   }
 
@@ -134,13 +134,8 @@ export class AuthService {
 
       if (data.user) {
         console.log('[Auth] Login successful for:', data.user.email);
-        try {
-          await this.loadUserProfile(data.user.id);
-          return { success: true };
-        } catch (profileError: any) {
-          console.error('[Auth] Failed to load profile:', profileError);
-          return { success: false, error: 'Profil používateľa nebol nájdený. Kontaktujte administrátora.' };
-        }
+        await this.loadUserProfile(data.user.id);
+        return { success: true };
       }
 
       return { success: false, error: 'Nepodarilo sa prihlásiť.' };
