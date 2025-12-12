@@ -199,15 +199,16 @@ export class SupabaseService {
         return false;
       }
       
-      // Check if token is about to expire (within 5 minutes)
+      // Check if token is expired or about to expire (within 5 minutes)
       const expiresAt = session.expires_at;
       if (expiresAt) {
         const expirationTime = expiresAt * 1000; // Convert to milliseconds
         const now = Date.now();
         const fiveMinutes = 5 * 60 * 1000;
         
-        if (expirationTime - now < fiveMinutes) {
-          console.log('Token expiring soon, refreshing...');
+        // Refresh if already expired or expiring within 5 minutes
+        if (now >= expirationTime || (expirationTime - now < fiveMinutes)) {
+          console.log('Token expired or expiring soon, refreshing...');
           const { data, error: refreshError } = await this.supabase.auth.refreshSession();
           
           if (refreshError) {
@@ -219,6 +220,8 @@ export class SupabaseService {
             console.log('Session refreshed successfully');
             return true;
           }
+          
+          return false;
         }
       }
       
@@ -226,6 +229,33 @@ export class SupabaseService {
     } catch (error) {
       console.error('Error ensuring valid session:', error);
       return false;
+    }
+  }
+
+  // Helper to execute database operations with automatic token refresh retry
+  async executeWithRetry<T>(operation: () => Promise<T>): Promise<T> {
+    try {
+      return await operation();
+    } catch (error: any) {
+      // Check if it's a JWT/auth error
+      if (error.message?.includes('JWT') || error.message?.includes('expired') || error.code === 'PGRST301') {
+        console.log('JWT error detected, attempting token refresh and retry...');
+        
+        // Try to refresh the session
+        const { data, error: refreshError } = await this.supabase.auth.refreshSession();
+        
+        if (refreshError || !data.session) {
+          console.error('Failed to refresh session:', refreshError);
+          throw error; // Re-throw original error
+        }
+        
+        console.log('Session refreshed, retrying operation...');
+        // Retry the operation once
+        return await operation();
+      }
+      
+      // Not a JWT error, just throw it
+      throw error;
     }
   }
 
@@ -294,35 +324,41 @@ export class SupabaseService {
   }
 
   async createAsset(asset: Database['public']['Tables']['assets']['Insert']) {
-    const { data, error } = await this.supabase
-      .from('assets')
-      .insert(asset)
-      .select()
-      .single();
-    
-    if (error) throw error;
-    return data as Database['public']['Tables']['assets']['Row'];
+    return this.executeWithRetry(async () => {
+      const { data, error } = await this.supabase
+        .from('assets')
+        .insert(asset)
+        .select()
+        .single();
+      
+      if (error) throw error;
+      return data as Database['public']['Tables']['assets']['Row'];
+    });
   }
 
   async updateAsset(id: string, updates: Database['public']['Tables']['assets']['Update']) {
-    const { data, error } = await this.supabase
-      .from('assets')
-      .update({ ...updates, updated_at: new Date().toISOString() })
-      .eq('id', id)
-      .select()
-      .single();
-    
-    if (error) throw error;
-    return data as Database['public']['Tables']['assets']['Row'];
+    return this.executeWithRetry(async () => {
+      const { data, error } = await this.supabase
+        .from('assets')
+        .update({ ...updates, updated_at: new Date().toISOString() })
+        .eq('id', id)
+        .select()
+        .single();
+      
+      if (error) throw error;
+      return data as Database['public']['Tables']['assets']['Row'];
+    });
   }
 
   async deleteAsset(id: string) {
-    const { error } = await this.supabase
-      .from('assets')
-      .delete()
-      .eq('id', id);
-    
-    if (error) throw error;
+    return this.executeWithRetry(async () => {
+      const { error } = await this.supabase
+        .from('assets')
+        .delete()
+        .eq('id', id);
+      
+      if (error) throw error;
+    });
   }
 
   // Inspections helpers
@@ -338,14 +374,16 @@ export class SupabaseService {
   }
 
   async createInspection(inspection: Database['public']['Tables']['inspections']['Insert']) {
-    const { data, error } = await this.supabase
-      .from('inspections')
-      .insert(inspection)
-      .select()
-      .single();
-    
-    if (error) throw error;
-    return data as Database['public']['Tables']['inspections']['Row'];
+    return this.executeWithRetry(async () => {
+      const { data, error } = await this.supabase
+        .from('inspections')
+        .insert(inspection)
+        .select()
+        .single();
+      
+      if (error) throw error;
+      return data as Database['public']['Tables']['inspections']['Row'];
+    });
   }
 
   async updateInspection(id: string, updates: Database['public']['Tables']['inspections']['Update']) {
