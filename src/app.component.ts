@@ -565,6 +565,7 @@ export class AppComponent {
 
   private validateInspectionForm() {
       const form = this.inspectionFormModel();
+      const asset = this.selectedAsset();
       const errors: {[key: string]: string} = {};
 
       if (!form.date) errors['date'] = 'Dátum je povinný.';
@@ -578,12 +579,16 @@ export class AppComponent {
 
       // Pre revíziu sú odpory povinné
       if (form.type === 'Revízia') {
-          if (form.protectiveConductorResistance == null || form.protectiveConductorResistance === 0) {
-              errors['protectiveConductorResistance'] = 'Odpor ochranného vodiča je povinný pre revíziu.';
-          } else if (form.protectiveConductorResistance < 0) {
-              errors['protectiveConductorResistance'] = 'Hodnota nemôže byť záporná.';
+          // Odpor ochranného vodiča je povinný len pre triedu ochrany I
+          if (asset?.protectionClass === 'I') {
+              if (form.protectiveConductorResistance == null || form.protectiveConductorResistance === 0) {
+                  errors['protectiveConductorResistance'] = 'Odpor ochranného vodiča je povinný pre revíziu triedy I.';
+              } else if (form.protectiveConductorResistance < 0) {
+                  errors['protectiveConductorResistance'] = 'Hodnota nemôže byť záporná.';
+              }
           }
           
+          // Izolačný odpor je povinný pre všetky triedy ochrany
           if (form.insulationResistance == null || form.insulationResistance === 0) {
               errors['insulationResistance'] = 'Izolačný odpor je povinný pre revíziu.';
           } else if (form.insulationResistance < 0) {
