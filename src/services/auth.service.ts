@@ -48,9 +48,10 @@ export class AuthService {
       
       // Listen for auth state changes including token refresh
       this.supabaseService.auth.onAuthStateChange(async (event, session) => {
-        console.log('Auth state changed:', event);
+        console.log('[Auth] State changed:', event, 'Session exists:', !!session, 'User:', session?.user?.email);
         
         if (event === 'SIGNED_IN' && session?.user) {
+          console.log('[Auth] User signed in:', session.user.email);
           await this.loadUserProfile(session.user.id);
           
           // Load all users if admin
@@ -59,12 +60,14 @@ export class AuthService {
             await this.loadAllUsers();
           }
         } else if (event === 'SIGNED_OUT') {
+          console.log('[Auth] User signed out');
           this._currentUser.set(null);
           this._users.set([]);
         } else if (event === 'TOKEN_REFRESHED' && session?.user) {
-          console.log('Token refreshed successfully');
+          console.log('[Auth] Token refreshed for user:', session.user.email);
           await this.loadUserProfile(session.user.id);
         } else if (event === 'USER_UPDATED' && session?.user) {
+          console.log('[Auth] User updated:', session.user.email);
           await this.loadUserProfile(session.user.id);
         }
       });

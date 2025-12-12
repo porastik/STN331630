@@ -190,14 +190,16 @@ export class SupabaseService {
       const { data: { session }, error } = await this.supabase.auth.getSession();
       
       if (error) {
-        console.error('Error getting session:', error);
+        console.error('[ensureValidSession] Error getting session:', error);
         return false;
       }
       
       if (!session) {
-        console.warn('No active session');
+        console.warn('[ensureValidSession] No active session found');
         return false;
       }
+      
+      console.log('[ensureValidSession] Session found, checking expiration...');
       
       // Check if token is expired or about to expire (within 5 minutes)
       const expiresAt = session.expires_at;
@@ -205,29 +207,34 @@ export class SupabaseService {
         const expirationTime = expiresAt * 1000; // Convert to milliseconds
         const now = Date.now();
         const fiveMinutes = 5 * 60 * 1000;
+        const timeUntilExpiry = expirationTime - now;
+        
+        console.log('[ensureValidSession] Time until expiry:', Math.round(timeUntilExpiry / 1000), 'seconds');
         
         // Refresh if already expired or expiring within 5 minutes
-        if (now >= expirationTime || (expirationTime - now < fiveMinutes)) {
-          console.log('Token expired or expiring soon, refreshing...');
+        if (now >= expirationTime || timeUntilExpiry < fiveMinutes) {
+          console.log('[ensureValidSession] Token expired or expiring soon, refreshing...');
           const { data, error: refreshError } = await this.supabase.auth.refreshSession();
           
           if (refreshError) {
-            console.error('Error refreshing session:', refreshError);
+            console.error('[ensureValidSession] Error refreshing session:', refreshError);
             return false;
           }
           
           if (data.session) {
-            console.log('Session refreshed successfully');
+            console.log('[ensureValidSession] Session refreshed successfully, new expiry:', new Date(data.session.expires_at! * 1000).toLocaleTimeString());
             return true;
           }
           
+          console.error('[ensureValidSession] Refresh succeeded but no session returned');
           return false;
         }
       }
       
+      console.log('[ensureValidSession] Session is valid, no refresh needed');
       return true;
     } catch (error) {
-      console.error('Error ensuring valid session:', error);
+      console.error('[ensureValidSession] Unexpected error:', error);
       return false;
     }
   }
