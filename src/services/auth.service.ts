@@ -80,7 +80,10 @@ export class AuthService {
 
   private async loadUserProfile(userId: string) {
     try {
+      console.log('[Auth] Loading profile for user ID:', userId);
       const data = await this.supabaseService.getProfile(userId);
+      console.log('[Auth] Profile loaded:', data.email, 'Role:', data.role);
+      
       const user: User = {
         id: data.id,
         username: data.username,
@@ -89,8 +92,10 @@ export class AuthService {
         role: data.role
       };
       this._currentUser.set(user);
+      console.log('[Auth] Current user set:', user.email);
     } catch (error) {
-      console.error('Error loading profile:', error);
+      console.error('[Auth] Error loading profile:', error);
+      throw error; // Re-throw to handle in login
     }
   }
 
@@ -115,23 +120,33 @@ export class AuthService {
   async login(email: string, password: string): Promise<AuthResponse> {
     this._loading.set(true);
     try {
+      console.log('[Auth] Login attempt for:', email);
+      
       const { data, error } = await this.supabaseService.auth.signInWithPassword({
         email,
         password,
       });
 
       if (error) {
+        console.error('[Auth] Login error:', error.message, error);
         return { success: false, error: this.translateAuthError(error) };
       }
 
       if (data.user) {
-        await this.loadUserProfile(data.user.id);
-        return { success: true };
+        console.log('[Auth] Login successful for:', data.user.email);
+        try {
+          await this.loadUserProfile(data.user.id);
+          return { success: true };
+        } catch (profileError: any) {
+          console.error('[Auth] Failed to load profile:', profileError);
+          return { success: false, error: 'Profil používateľa nebol nájdený. Kontaktujte administrátora.' };
+        }
       }
 
       return { success: false, error: 'Nepodarilo sa prihlásiť.' };
-    } catch (error) {
-      return { success: false, error: 'Nastala chyba pri prihlásení.' };
+    } catch (error: any) {
+      console.error('[Auth] Login exception:', error);
+      return { success: false, error: 'Nastala chyba pri prihlásení: ' + error.message };
     } finally {
       this._loading.set(false);
     }
