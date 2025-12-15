@@ -189,52 +189,33 @@ export class SupabaseService {
     try {
       const { data: { session }, error } = await this.supabase.auth.getSession();
       
-      if (error) {
-        console.error('[ensureValidSession] Error getting session:', error);
+      if (error || !session) {
         return false;
       }
-      
-      if (!session) {
-        console.warn('[ensureValidSession] No active session found');
-        return false;
-      }
-      
-      console.log('[ensureValidSession] Session found, checking expiration...');
       
       // Check if token is expired or about to expire (within 5 minutes)
       const expiresAt = session.expires_at;
       if (expiresAt) {
-        const expirationTime = expiresAt * 1000; // Convert to milliseconds
+        const expirationTime = expiresAt * 1000;
         const now = Date.now();
         const fiveMinutes = 5 * 60 * 1000;
         const timeUntilExpiry = expirationTime - now;
         
-        console.log('[ensureValidSession] Time until expiry:', Math.round(timeUntilExpiry / 1000), 'seconds');
-        
         // Refresh if already expired or expiring within 5 minutes
         if (now >= expirationTime || timeUntilExpiry < fiveMinutes) {
-          console.log('[ensureValidSession] Token expired or expiring soon, refreshing...');
           const { data, error: refreshError } = await this.supabase.auth.refreshSession();
           
-          if (refreshError) {
-            console.error('[ensureValidSession] Error refreshing session:', refreshError);
+          if (refreshError || !data.session) {
             return false;
           }
           
-          if (data.session) {
-            console.log('[ensureValidSession] Session refreshed successfully, new expiry:', new Date(data.session.expires_at! * 1000).toLocaleTimeString());
-            return true;
-          }
-          
-          console.error('[ensureValidSession] Refresh succeeded but no session returned');
-          return false;
+          return true;
         }
       }
       
-      console.log('[ensureValidSession] Session is valid, no refresh needed');
       return true;
     } catch (error) {
-      console.error('[ensureValidSession] Unexpected error:', error);
+      console.error('Error ensuring valid session:', error);
       return false;
     }
   }
@@ -246,22 +227,17 @@ export class SupabaseService {
     } catch (error: any) {
       // Check if it's a JWT/auth error
       if (error.message?.includes('JWT') || error.message?.includes('expired') || error.code === 'PGRST301') {
-        console.log('JWT error detected, attempting token refresh and retry...');
-        
         // Try to refresh the session
         const { data, error: refreshError } = await this.supabase.auth.refreshSession();
         
         if (refreshError || !data.session) {
-          console.error('Failed to refresh session:', refreshError);
-          throw error; // Re-throw original error
+          throw error;
         }
         
-        console.log('Session refreshed, retrying operation...');
         // Retry the operation once
         return await operation();
       }
       
-      // Not a JWT error, just throw it
       throw error;
     }
   }

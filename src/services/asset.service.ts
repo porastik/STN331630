@@ -172,11 +172,8 @@ export class AssetService {
     }
 
     try {
-      console.log('[addAsset] Starting - User:', currentUser.email);
-      
       // Ensure valid session before database operation
       const sessionValid = await this.supabaseService.ensureValidSession();
-      console.log('[addAsset] Session valid:', sessionValid);
       
       if (!sessionValid) {
         this._error.set('Vaša relácia vypršala. Prosím, prihláste sa znova.');
@@ -187,13 +184,11 @@ export class AssetService {
       // Double-check user still exists
       const currentUserCheck = this.authService.currentUser();
       if (!currentUserCheck) {
-        console.error('[addAsset] User disappeared during operation');
         this._error.set('Vaša relácia vypršala. Prosím, prihláste sa znova.');
         this._loading.set(false);
         return;
       }
 
-      console.log('[addAsset] Creating asset in database...');
       const data = await this.supabaseService.createAsset({
         name: asset.name,
         type: asset.type,
@@ -211,9 +206,7 @@ export class AssetService {
         created_by: currentUser.id,
       });
 
-      console.log('[addAsset] Asset created successfully:', data.id);
       await this.loadAssetsFromSupabase();
-      console.log('[addAsset] Assets reloaded from Supabase');
       this.lastAddedRevisionNumber.set(asset.revisionNumber);
     } catch (error: any) {
       console.error('Error adding asset:', error);
@@ -367,11 +360,8 @@ export class AssetService {
     }
 
     try {
-      console.log('[addInspection] Starting - User:', currentUser.email, 'Asset:', assetId);
-      
       // Ensure valid session before database operation
       const sessionValid = await this.supabaseService.ensureValidSession();
-      console.log('[addInspection] Session valid:', sessionValid);
       
       if (!sessionValid) {
         this._error.set('Vaša relácia vypršala. Prosím, prihláste sa znova.');
@@ -382,13 +372,11 @@ export class AssetService {
       // Double-check user still exists
       const currentUserCheck = this.authService.currentUser();
       if (!currentUserCheck) {
-        console.error('[addInspection] User disappeared during operation');
         this._error.set('Vaša relácia vypršala. Prosím, prihláste sa znova.');
         this._loading.set(false);
         return;
       }
 
-      console.log('[addInspection] Creating inspection in database...');
       await this.supabaseService.createInspection({
         asset_id: assetId,
         date: inspection.date,

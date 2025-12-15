@@ -48,20 +48,12 @@ export class AuthService {
       
       // Listen for auth state changes including token refresh
       this.supabaseService.auth.onAuthStateChange(async (event, session) => {
-        console.log('[Auth] State changed:', event, 'Session exists:', !!session, 'User:', session?.user?.email);
-        
         if (event === 'SIGNED_OUT') {
-          console.log('[Auth] User signed out');
           this._currentUser.set(null);
           this._users.set([]);
-        } else if (event === 'TOKEN_REFRESHED' && session?.user) {
-          console.log('[Auth] Token refreshed for user:', session.user.email);
-          // No need to reload profile on token refresh - user data doesn't change
         } else if (event === 'USER_UPDATED' && session?.user) {
-          console.log('[Auth] User updated:', session.user.email);
           await this.loadUserProfile(session.user.id);
         }
-        // Note: SIGNED_IN is handled by login() method, not here
       });
     } catch (error) {
       console.error('Error initializing auth:', error);
@@ -72,9 +64,7 @@ export class AuthService {
 
   private async loadUserProfile(userId: string) {
     try {
-      console.log('[Auth] Loading profile for user ID:', userId);
       const data = await this.supabaseService.getProfile(userId);
-      console.log('[Auth] Profile loaded:', data.email, 'Role:', data.role);
       
       const user: User = {
         id: data.id,
@@ -84,10 +74,8 @@ export class AuthService {
         role: data.role
       };
       this._currentUser.set(user);
-      console.log('[Auth] Current user set:', user.email);
     } catch (error) {
-      console.error('[Auth] Error loading profile:', error);
-      // Don't throw - just log the error
+      console.error('Error loading profile:', error);
     }
   }
 
@@ -112,25 +100,20 @@ export class AuthService {
   async login(email: string, password: string): Promise<AuthResponse> {
     this._loading.set(true);
     try {
-      console.log('[Auth] Login attempt for:', email);
-      
       const { data, error } = await this.supabaseService.auth.signInWithPassword({
         email,
         password,
       });
 
       if (error) {
-        console.error('[Auth] Login error:', error.message, error);
         return { success: false, error: this.translateAuthError(error) };
       }
 
       if (data.user) {
-        console.log('[Auth] Login successful for:', data.user.email);
         await this.loadUserProfile(data.user.id);
         
         // Load all users if admin
         if (this._currentUser()?.role === 'Administrator') {
-          console.log('[Auth] Loading all users for administrator');
           await this.loadAllUsers();
         }
         
@@ -139,7 +122,6 @@ export class AuthService {
 
       return { success: false, error: 'Nepodarilo sa prihlásiť.' };
     } catch (error: any) {
-      console.error('[Auth] Login exception:', error);
       return { success: false, error: 'Nastala chyba pri prihlásení: ' + error.message };
     } finally {
       this._loading.set(false);
