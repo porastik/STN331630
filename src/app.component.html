@@ -202,10 +202,12 @@
                      <button (click)="generateAllPdf()" class="p-2 text-slate-600 hover:bg-slate-100 rounded-md" title="Exportovať všetky karty do PDF">
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5"><path fill-rule="evenodd" d="M5 2.75C5 1.784 5.784 1 6.75 1h6.5c.966 0 1.75.784 1.75 1.75v3.552c.377.135.74.34 1.074.599V2.75A2.75 2.75 0 0 0 13.25 0h-6.5A2.75 2.75 0 0 0 4 2.75v14.5A2.75 2.75 0 0 0 6.75 20h6.5A2.75 2.75 0 0 0 16 17.25v-3.35a3.513 3.513 0 0 1-1 .099V17.25c0 .966-.784 1.75-1.75 1.75h-6.5A1.75 1.75 0 0 1 5 17.25V2.75Z" clip-rule="evenodd" /><path d="M13.5 11.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5Z" /><path d="M12.99 9.993a.75.75 0 0 1 .75-.75h2.01a.75.75 0 0 1 0 1.5h-2.01a.75.75 0 0 1-.75-.75Z" /><path d="M12.99 12.007a.75.75 0 0 1 .75-.75h2.01a.75.75 0 0 1 0 1.5h-2.01a.75.75 0 0 1-.75-.75Z" /><path d="m14.25 6.75.001 1.006a.75.75 0 0 1-1.5 0L12.75 6.75a.75.75 0 0 1 1.5 0Z" /><path d="M12.75 13.257V12.25a.75.75 0 0 1 1.5 0v1.007a.75.75 0 0 1-1.5 0Z" /></svg>
                     </button>
+                </div>
+                }
+                @if (authService.canEdit()) {
                     <button (click)="exportToCsv()" class="p-2 text-slate-600 hover:bg-slate-100 rounded-md" title="Exportovať zoznam do súboru CSV">
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5"><path fill-rule="evenodd" d="M10 18a8 8 0 1 0 0-16 8 8 0 0 0 0 16Zm.75-11.25a.75.75 0 0 0-1.5 0v4.59L7.3 9.24a.75.75 0 0 0-1.1 1.02l3.25 3.5a.75.75 0 0 0 1.1 0l3.25-3.5a.75.75 0 1 0-1.1-1.02l-1.95 2.1V6.75Z" clip-rule="evenodd" /></svg>
                     </button>
-                </div>
                 }
                 @if (authService.canEdit()) {
                   <button (click)="showAddAssetForm()" class="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-md shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">
